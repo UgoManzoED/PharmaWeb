@@ -177,7 +177,7 @@ public class ProductDAO {
         String sql = "INSERT INTO Prodotto (Nome, Descrizione, Prezzo, ScontoPercentuale, QuantitaDisponibile, URL_Immagine, FK_Categoria) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManagerConnection-Pool.getConnection();
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, product.getNomeProdotto());
