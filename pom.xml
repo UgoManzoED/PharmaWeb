@@ -39,16 +39,21 @@
 
     <!-- Compilazione -->
     <build>
+    	<finalName>PharmaWeb</finalName>
         <plugins>
+        
             <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version> <!-- per Java 8 -->
                 <configuration>
-                	<source>1.8</source>
-                	<target>1.8</target>
+                	<source>${maven.compiler.source}</source>
+                	<target>${maven.compiler.source}</target>
                 </configuration>
             </plugin>
+            
             <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.2.3</version>
                 <configuration>
@@ -56,6 +61,7 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
+            
         </plugins>
     </build>
 </project>
