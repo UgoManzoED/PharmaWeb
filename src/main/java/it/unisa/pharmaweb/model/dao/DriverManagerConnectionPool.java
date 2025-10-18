@@ -1,4 +1,4 @@
-package it.unisa.pharmaweb.model.bean;
+package it.unisa.pharmaweb.model.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,7 +12,7 @@ public class DriverManagerConnectionPool {
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "TSWunisa123";
 
-    // --- Caricamento driver JDBC di MySQL. ---
+    // --- Caricamento driver JDBC di MySQL. (Statico perchè lo eseguo 1 volta al caricamento) ---
     static {
         try {
             Class.forName(JDBC_DRIVER);
@@ -22,7 +22,7 @@ public class DriverManagerConnectionPool {
         }
     }
 
-    // --- Connessione al Database
+    // --- Connessione al Database ---
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD); // Ogni volta che viene chiamato, crea una nuova connessione
     }
