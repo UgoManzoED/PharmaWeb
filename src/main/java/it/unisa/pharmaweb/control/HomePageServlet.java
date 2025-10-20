@@ -23,16 +23,16 @@ public class HomePageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Istanzia il DAO per accedere ai dati dei prodotti.
         ProductDAO productDAO = new ProductDAO();
         
-        // Recuperiamo gli 8 prodotti più recenti.
         List<ProductBean> newProducts = productDAO.getNewProducts(8);
+        List<ProductBean> popularProducts = productDAO.getPopularProducts(8);
+        List<ProductBean> discountedProducts = productDAO.getDiscountedProducts(8);
         
-        // "Allega" la lista di prodotti alla richiesta HTTP.
         request.setAttribute("newProducts", newProducts);
+        request.setAttribute("popularProducts", popularProducts);
+        request.setAttribute("discountedProducts", discountedProducts);
         
-        // Inoltra la richiesta (che ora contiene i prodotti) alla pagina JSP
         RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
         dispatcher.forward(request, response);
     }
