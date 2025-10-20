@@ -41,6 +41,13 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.28</version>
         </dependency>
+        
+        <!-- Libreria hashing delle password (BCrypt) -->
+		<dependency>
+		    <groupId>org.mindrot</groupId>
+		    <artifactId>jbcrypt</artifactId>
+		    <version>0.4</version>
+		</dependency>
 	</dependencies>
 
     <!-- Compilazione -->
