@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.mindrot.jbcrypt.BCrypt;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -17,39 +18,26 @@ public class LoginServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        String passwordInChiaro = request.getParameter("password");
         
         UtenteDAO utenteDAO = new UtenteDAO();
         UtenteBean utente = utenteDAO.getUtenteByEmail(email);
         
-        // --- GESTIONE DELLA LOGICA DI LOGIN ---
-
-        // CASO 1: Utente non trovato nel database
-        if (utente == null) {
+        // CASO 1: Utente non trovato o password non corretta
+        // BCrypt.checkpw gestisce entrambi i casi in modo sicuro.
+        // L'utente viene recuperato, e poi si controlla se la password in chiaro corrisponde all'hash salvato.
+        if (utente == null || !BCrypt.checkpw(passwordInChiaro, utente.getPassword())) {
             request.setAttribute("error", "Credenziali non valide. Riprova.");
             RequestDispatcher dispatcher = request.getRequestDispatcher("/login.jsp");
             dispatcher.forward(request, response);
             return; // Interrompe l'esecuzione
         }
 
-        // CASO 2: Password non corretta
-        // NOTA: Temporaneo, useremo l'hash, non in chiaro
-        if (!utente.getPassword().equals(password)) {
-            request.setAttribute("error", "Credenziali non valide. Riprova.");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/login.jsp");
-            dispatcher.forward(request, response);
-            return;
-        }
-
-        // CASO 3: Login Riuscito
-        // Creiamo una nuova sessione o ne recuperiamo una esistente
-        HttpSession session = request.getSession(true); 
-        // Salviamo l'intero oggetto UtenteBean nella sessione.
-        // Questo ci permetterà di accedere ai dati dell'utente in qualsiasi pagina.
-        session.setAttribute("utente", utente);
+        // CASO 2: Login Riuscito
+        HttpSession session = request.getSession(true); // Crea sessione o recupera una esistente
+        utente.setPassword(null); // Rimuoviamo la password dall'oggetto prima di metterlo in sessione
+        session.setAttribute("utente", utente); // Salviamo l'oggetto utente in modo da disporre dei dati nella sessione
         
-        // Reindirizziamo l'utente alla homepage dopo il login.
-        // Usiamo sendRedirect per cambiare l'URL nel browser.
         response.sendRedirect(request.getContextPath() + "/");
     }
 }

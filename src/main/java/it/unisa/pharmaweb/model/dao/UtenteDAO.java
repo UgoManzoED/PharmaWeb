@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UtenteDAO {
 	/**
@@ -37,5 +38,29 @@ public class UtenteDAO {
             e.printStackTrace();
         }
         return null; // Utente non trovato
+    }
+    
+    /**
+     * Salva un nuovo utente nel database, eseguendo l'hashing della password.
+     * @param utente l'UtenteBean con i dati da salvare (la password deve essere in chiaro).
+     */
+    public void saveUtente(UtenteBean utente) {
+        String hashedPassword = BCrypt.hashpw(utente.getPassword(), BCrypt.gensalt()); // 1. Genera il salt e calcola l'hash della password in chiaro
+        
+        String sql = "INSERT INTO Utente (Email, Password, Nome, Cognome, Ruolo) VALUES (?, ?, ?, ?, 'cliente')";
+
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, utente.getEmail());
+            stmt.setString(2, hashedPassword); // 2. Salvo l'hash della password (Non la password in chiaro)
+            stmt.setString(3, utente.getNome());
+            stmt.setString(4, utente.getCognome());
+            
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
