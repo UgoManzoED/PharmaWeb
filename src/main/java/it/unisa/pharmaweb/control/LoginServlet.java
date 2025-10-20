@@ -24,8 +24,8 @@ public class LoginServlet extends HttpServlet {
         UtenteBean utente = utenteDAO.getUtenteByEmail(email);
         
         // CASO 1: Utente non trovato o password non corretta
-        // BCrypt.checkpw gestisce entrambi i casi in modo sicuro.
-        // L'utente viene recuperato, e poi si controlla se la password in chiaro corrisponde all'hash salvato.
+        // BCrypt.checkpw gestisce entrambi i casi
+        // L'utente viene recuperato, e poi si controlla se la password in chiaro corrisponde all'hash salvato
         if (utente == null || !BCrypt.checkpw(passwordInChiaro, utente.getPassword())) {
             request.setAttribute("error", "Credenziali non valide. Riprova.");
             RequestDispatcher dispatcher = request.getRequestDispatcher("/login.jsp");
