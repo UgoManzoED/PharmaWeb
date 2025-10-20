@@ -46,7 +46,7 @@ out/
 .project
 .settings/
 .metadata/
-
+.vscode
 .vscode/*
 !/.vscode/settings.json
 !/.vscode/tasks.json
