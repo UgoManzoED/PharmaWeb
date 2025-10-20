@@ -372,4 +372,94 @@ public class ProductDAO {
     	}
     	return products;
     }
+    
+    /**
+     * Recupera una lista dei prodotti più venduti (popolari).
+     * La popolarità è calcolata in base al numero totale di unità vendute
+     * di ogni prodotto, sommando le quantità da tutte le righe d'ordine.
+     * @param limit il numero massimo di prodotti popolari da restituire.
+     * @return una List di ProductBean dei prodotti più venduti.
+     */
+    public List<ProductBean> getPopularProducts(int limit) {
+        List<ProductBean> products = new ArrayList<>();
+        // Questa query è più complessa: unisce i prodotti con le righe d'ordine,
+        // raggruppa per prodotto, somma le quantità vendute e ordina per questa somma.
+        String sql = "SELECT p.*, c.Nome AS NomeCategoria " +
+                     "FROM Prodotto p " +
+                     "JOIN RigaOrdine ro ON p.ID_Prodotto = ro.FK_Prodotto " +
+                     "LEFT JOIN Categoria c ON p.FK_Categoria = c.ID_Categoria " +
+                     "GROUP BY p.ID_Prodotto " +
+                     "ORDER BY SUM(ro.Quantita) DESC " +
+                     "LIMIT ?";
+
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, limit);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ProductBean product = new ProductBean();
+                product.setIdProdotto(rs.getInt("ID_Prodotto"));
+                product.setNomeProdotto(rs.getString("Nome"));
+                product.setDescrizione(rs.getString("Descrizione"));
+                
+                double prezzoListino = rs.getDouble("Prezzo");
+                int sconto = rs.getInt("ScontoPercentuale");
+                product.setPrezzoDiListino(prezzoListino);
+                product.setScontoPercentuale(sconto);
+                
+                if (sconto > 0) {
+                    product.setPrezzoFinale(prezzoListino * (1 - sconto / 100.0));
+                } else {
+                    product.setPrezzoFinale(prezzoListino);
+                }
+                
+                product.setQuantitaDisponibile(rs.getInt("QuantitaDisponibile"));
+                product.setUrlImmagine(rs.getString("URL_Immagine"));
+                product.setIdCategoria(rs.getInt("FK_Categoria"));
+                product.setNomeCategoria(rs.getString("NomeCategoria"));
+                
+                products.add(product);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    /**
+     * Recupera una lista di prodotti attualmente in sconto.
+     * Utile per una sezione "Offerte Speciali" del sito.
+     * @param limit il numero massimo di prodotti scontati da restituire.
+     * @return una List di ProductBean.
+     */
+    public List<ProductBean> getDiscountedProducts(int limit) {
+        List<ProductBean> products = new ArrayList<>();
+        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE ScontoPercentuale > 0 ORDER BY ScontoPercentuale DESC LIMIT ?";
+
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, limit);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ProductBean product = new ProductBean();
+                product.setIdProdotto(rs.getInt("ID_Prodotto"));
+                product.setNomeProdotto(rs.getString("NomeProdotto"));
+                product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
+                product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
+                product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
+                product.setUrlImmagine(rs.getString("URL_Immagine"));
+                product.setNomeCategoria(rs.getString("NomeCategoria"));
+                products.add(product);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
 }
