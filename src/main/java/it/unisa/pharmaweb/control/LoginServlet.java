@@ -40,4 +40,11 @@ public class LoginServlet extends HttpServlet {
         
         response.sendRedirect(request.getContextPath() + "/");
     }
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Se l'utente fa una richiesta GET a /login gli mostra la pagina di login.
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/login.jsp");
+        dispatcher.forward(request, response);
+    }
 }
