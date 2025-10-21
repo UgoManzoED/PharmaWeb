@@ -7,7 +7,7 @@ import java.util.List;
 public class CartBean implements Serializable {
     private static final long serialVersionUID = 1L;
     
-    private List<CartItemBean> items;
+    private final List<CartItemBean> items;
 
     public CartBean() {
         items = new ArrayList<>();
@@ -27,6 +27,32 @@ public class CartBean implements Serializable {
         items.removeIf(item -> item.getProduct().getIdProdotto() == productId);
     }
     
+    public void updateQuantity(int productId, int newQuantity) {
+        if (newQuantity <= 0) {
+            removeItem(productId);
+            return;
+        }
+        for (CartItemBean item : items) {
+            if (item.getProduct().getIdProdotto() == productId) {
+                item.setQuantity(newQuantity);
+                return;
+            }
+        }
+    }
+
+    public void clear() {
+        items.clear();
+    }
+    
+    public int getQuantityOfProduct(int productId) {
+        for (CartItemBean item : items) {
+            if (item.getProduct().getIdProdotto() == productId) {
+                return item.getQuantity();
+            }
+        }
+        return 0;
+    }
+
     public double getTotal() {
         double total = 0;
         for (CartItemBean item : items) {
@@ -35,7 +61,6 @@ public class CartBean implements Serializable {
         return total;
     }
     
-    // Getter per la lista di item
     public List<CartItemBean> getItems() {
         return items;
     }
