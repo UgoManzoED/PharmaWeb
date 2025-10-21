@@ -1,6 +1,6 @@
 package it.unisa.pharmaweb.control;
 
-import com.google.gson.Gson; // Importa Gson
+import com.google.gson.Gson;
 import it.unisa.pharmaweb.model.bean.CartBean;
 import it.unisa.pharmaweb.model.bean.ProductBean;
 import it.unisa.pharmaweb.model.dao.ProductDAO;
@@ -28,50 +28,73 @@ public class CartServlet extends HttpServlet {
         }
         
         String action = request.getParameter("action");
-        ProductBean product = null;
+        Gson gson = new Gson();
+        Map<String, Object> responseData = new HashMap<>();
         
         try {
             if (action != null) {
+                ProductDAO productDAO = new ProductDAO();
+
                 if ("add".equals(action)) {
                     int productId = Integer.parseInt(request.getParameter("productId"));
-                    int quantity = 1;
+                    int quantityToAdd = 1;
                     
-                    ProductDAO productDAO = new ProductDAO();
-                    product = productDAO.getProductById(productId);
+                    int currentQuantityInCart = cart.getQuantityOfProduct(productId);
                     
-                    if (product != null) {
-                        cart.addItem(product, quantity);
+                    // CONTROLLO DISPONIBILITÀ
+                    if (productDAO.isAvailable(productId, currentQuantityInCart + quantityToAdd)) {
+                        ProductBean product = productDAO.getProductById(productId);
+                        if (product != null) {
+                            cart.addItem(product, quantityToAdd);
+                            responseData.put("success", true);
+                            responseData.put("addedProductName", product.getNomeProdotto());
+                        }
+                    } else {
+                        responseData.put("success", false);
+                        responseData.put("error", "Quantità non disponibile in magazzino!");
                     }
                 } else if ("remove".equals(action)) {
-                	int productId = Integer.parseInt(request.getParameter("productId"));
+                    int productId = Integer.parseInt(request.getParameter("productId"));
                     cart.removeItem(productId);
+                    responseData.put("success", true);
+                    // Ricarichiamo la pagina perché la rimozione avviene dalla pagina del carrello
+                    response.sendRedirect(request.getContextPath() + "/cart.jsp");
+                    return;
+                } else if ("update".equals(action)) {
+                    int productId = Integer.parseInt(request.getParameter("productId"));
+                    int newQuantity = Integer.parseInt(request.getParameter("quantity"));
+                    
+                    // Per l'update, controlliamo la disponibilità della nuova quantità totale
+                    if(productDAO.isAvailable(productId, newQuantity)) {
+                        cart.updateQuantity(productId, newQuantity);
+                        responseData.put("success", true);
+                    } else {
+                        responseData.put("success", false);
+                        responseData.put("error", "La quantità richiesta non è disponibile.");
+                    }
+                    // L'update avviene dalla pagina del carrello, quindi ricarichiamo
+                    response.sendRedirect(request.getContextPath() + "/cart.jsp");
+                    return;
+                } else if ("clear".equals(action)) {
+                    cart.clear();
+                    responseData.put("success", true);
+                    response.sendRedirect(request.getContextPath() + "/cart.jsp");
+                    return;
                 }
             }
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Invia un codice di errore HTTP
-            response.getWriter().write("ID prodotto non valido.");
-            return;
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            responseData.put("success", false);
+            responseData.put("error", "Richiesta non valida.");
         }
-        
-        // 1. Imposta il tipo di contenuto della risposta a JSON
+
+        // --- Risposta JSON per l'azione 'add' (o errori) ---
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        responseData.put("cartItemCount", cart.getItems().size());
         
-        // 2. Prepara i dati da inviare come risposta
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("success", true);
-        responseData.put("cartItemCount", cart.getItems().size()); // Numero di item diversi nel carrello
-        if (product != null) {
-            responseData.put("addedProductName", product.getNomeProdotto());
-        }
-        
-        // 3. Usa Gson per convertire la mappa in una stringa JSON
-        Gson gson = new Gson();
-        String jsonResponse = gson.toJson(responseData);
-        
-        // 4. Scrivi la stringa JSON nella risposta
         PrintWriter out = response.getWriter();
-        out.print(jsonResponse);
+        out.print(gson.toJson(responseData));
         out.flush();
     }
     
