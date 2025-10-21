@@ -18,10 +18,13 @@ public class OrdineBean implements Serializable {
     private int puntiUtilizzati;
     private List<RigaOrdineBean> righe;
     
+    public OrdineBean() {
+    	
+    }
+    
 	public OrdineBean(int idOrdine, int idUtente, Date dataOrdine, double importoTotale, String indirizzoSpedizione,
 			String metodoPagamentoUtilizzato, String stato, int puntiGuadagnati, int puntiUtilizzati,
 			List<RigaOrdineBean> righe) {
-		super();
 		this.idOrdine = idOrdine;
 		this.idUtente = idUtente;
 		this.dataOrdine = dataOrdine;
@@ -112,10 +115,6 @@ public class OrdineBean implements Serializable {
 
 	public void setRighe(List<RigaOrdineBean> righe) {
 		this.righe = righe;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
     
 }
