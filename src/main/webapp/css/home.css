@@ -156,3 +156,30 @@ main {
     margin-bottom: 10px;
     color: #2c3e50; /* Testo scuro per contrasto */
 }
+
+/* Stili specifici per le icone social */
+.social-links li {
+    display: flex;
+    align-items: center; /* Allinea verticalmente testo e icone */
+    gap: 10px; /* Spazio tra il nome e le icone */
+}
+
+.social-links img {
+    width: 24px;  /* Dimensione delle icone */
+    height: 24px;
+    vertical-align: middle; /* Allinea l'icona con il testo */
+    transition: transform 0.2s;
+}
+
+.social-links a:hover img {
+    transform: scale(1.2); /* Effetto hover sulle icone */
+}
+
+/* Stile per la barra inferiore del footer */
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #81c784; /* Tonalità più scura della barra categorie */
+    font-size: 0.9em;
+    color: #2c3e50;
+}
