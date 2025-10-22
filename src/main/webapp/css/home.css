@@ -111,3 +111,48 @@ main {
 .normal-price { color: #333; font-weight: bold; }
 .add-to-cart-button { background-color: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 1em; }
 .add-to-cart-button:hover { background-color: #218838; }
+
+/* footer */
+.footer {
+    background-color: #c8e6c9; /* Stesso colore della barra categorie */
+    color: #2c3e50; /* Testo scuro per contrasto */
+    padding: 40px 20px 10px 20px;
+    margin-top: 50px; /* Spazio sopra il footer */
+    border-top: 5px solid #3498db; /* Leggera variazione per evidenziare */
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-around; /* Distribuisce lo spazio tra le sezioni */
+    flex-wrap: wrap; /* Permette alle sezioni di andare a capo su schermi piccoli */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+    gap: 20px; /* Spazio tra le colonne */
+}
+
+.footer-section {
+    flex: 1; /* Le sezioni occupano lo stesso spazio */
+    min-width: 250px; /* Larghezza minima prima di andare a capo */
+    padding: 0 15px;
+}
+
+.footer-section h3 {
+    font-size: 1.3em;
+    color: #1b3c2e;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #3498db; /* Un tocco di colore per i titoli */
+    padding-bottom: 10px;
+}
+
+/* Stile per le liste nel footer */
+.footer-section ul {
+    list-style: none; /* Rimuove i pallini dalle liste */
+    padding: 0;
+    margin: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 10px;
+    color: #2c3e50; /* Testo scuro per contrasto */
+}
