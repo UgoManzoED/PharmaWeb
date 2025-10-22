@@ -26,6 +26,10 @@ public class WishlistBean implements Serializable {
         items.removeIf(item -> item.getIdProdotto() == productId);
     }
     
+    public void clear() {
+        items.clear();
+    }
+    
     public List<ProductBean> getItems() {
         return items;
     }

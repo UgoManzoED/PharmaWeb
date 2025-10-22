@@ -1,11 +1,13 @@
 package it.unisa.pharmaweb.control;
 
 import com.google.gson.Gson;
+import it.unisa.pharmaweb.model.bean.CartBean;
 import it.unisa.pharmaweb.model.bean.ProductBean;
 import it.unisa.pharmaweb.model.bean.WishlistBean;
 import it.unisa.pharmaweb.model.dao.ProductDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import jakarta.servlet.ServletException;
@@ -29,38 +31,69 @@ public class WishlistServlet extends HttpServlet {
             session.setAttribute("wishlist", wishlist);
         }
         
+        CartBean cart = (CartBean) session.getAttribute("cart");
+        if (cart == null) {
+            cart = new CartBean();
+            session.setAttribute("cart", cart);
+        }
+        
         String action = request.getParameter("action");
-        ProductBean product = null;
+        ProductDAO productDAO = new ProductDAO();
         
         try {
             if (action != null) {
-                int productId = Integer.parseInt(request.getParameter("productId"));
-                
+                // Azioni che rispondono con JSON (tipicamente da AJAX)
                 if ("add".equals(action)) {
-                    ProductDAO productDAO = new ProductDAO();
-                    product = productDAO.getProductById(productId);
+                    int productId = Integer.parseInt(request.getParameter("productId"));
+                    ProductBean product = productDAO.getProductById(productId);
                     if (product != null) {
                         wishlist.addItem(product);
                     }
-                } else if ("remove".equals(action)) {
+                    // Prepara e invia risposta JSON
+                    sendJsonResponse(response, wishlist.getSize(), product != null ? product.getNomeProdotto() : null);
+                    return; // Interrompe l'esecuzione per non fare redirect
+                }
+
+                // Azioni che ricaricano la pagina (tipicamente dalla wishlist.jsp)
+                if ("remove".equals(action)) {
+                    int productId = Integer.parseInt(request.getParameter("productId"));
                     wishlist.removeItem(productId);
+                } else if ("clear".equals(action)) {
+                    wishlist.clear();
+                } else if ("moveToCart".equals(action)) {
+                    int productId = Integer.parseInt(request.getParameter("productId"));
+                    ProductBean product = productDAO.getProductById(productId);
+                    if (product != null && productDAO.isAvailable(productId, cart.getQuantityOfProduct(productId) + 1)) {
+                        cart.addItem(product, 1);
+                        wishlist.removeItem(productId);
+                    }
+                } else if ("moveAllToCart".equals(action)) {
+                    // Copiamo la lista per evitare problemi di concorrenza durante l'iterazione e la rimozione
+                    for (ProductBean product : new ArrayList<>(wishlist.getItems())) {
+                        if (productDAO.isAvailable(product.getIdProdotto(), cart.getQuantityOfProduct(product.getIdProdotto()) + 1)) {
+                            cart.addItem(product, 1);
+                            wishlist.removeItem(product.getIdProdotto());
+                        }
+                    }
                 }
             }
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("ID prodotto non valido.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID prodotto non valido.");
             return;
         }
 
-        // --- Risposta JSON (identica a quella del carrello) ---
+        response.sendRedirect(request.getContextPath() + "/wishlist.jsp");
+    }
+    
+    private void sendJsonResponse(HttpServletResponse response, int itemCount, String productName) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("success", true);
-        responseData.put("wishlistItemCount", wishlist.getSize());
-        if (product != null) {
-            responseData.put("addedProductName", product.getNomeProdotto());
+        responseData.put("wishlistItemCount", itemCount);
+        if (productName != null) {
+            responseData.put("addedProductName", productName);
         }
         
         Gson gson = new Gson();

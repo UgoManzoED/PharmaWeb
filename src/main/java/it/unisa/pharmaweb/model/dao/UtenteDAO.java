@@ -184,4 +184,22 @@ public class UtenteDAO {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Aggiorna il saldo punti di un utente specifico.
+     * Progettato per essere usato all'interno di una transazione.
+     * @param conn la connessione transazionale attiva.
+     * @param idUtente l'ID dell'utente da aggiornare.
+     * @param nuovoSaldoPunti il nuovo saldo punti totale.
+     * @throws SQLException se l'aggiornamento fallisce.
+     */
+    public void updatePuntiFedelta(Connection conn, int idUtente, int nuovoSaldoPunti) throws SQLException {
+        String sql = "UPDATE Utente SET PuntiFedelta = ? WHERE ID_Utente = ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, nuovoSaldoPunti);
+            stmt.setInt(2, idUtente);
+            stmt.executeUpdate();
+        }
+    }
 }
