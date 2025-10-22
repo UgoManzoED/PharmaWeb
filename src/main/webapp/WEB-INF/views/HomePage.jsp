@@ -102,6 +102,30 @@
 
     <!-- Da aggiungere la sezione per i prodotti più venduti, copiando la struttura della sezione 'newProducts' e cambiando l'items in ${popularProducts} -->
 
+<!-- sezione prodotti più venduti -->
+<section class="product-carousel">
+    <h2>I nostri prodotti più venduti</h2>
+    <div class="products-container">
+        <c:forEach var="prodotto" items="${popularProducts}">
+            <div class="product-card">
+                <img class="product-image" src="${pageContext.request.contextPath}/${prodotto.urlImmagine}" alt="${prodotto.nomeProdotto}">
+                <h3 class="product-name">${prodotto.nomeProdotto}</h3>
+                <div class="product-price">
+                    <c:if test="${prodotto.scontoPercentuale > 0}">
+                        <span class="original-price"><fmt:formatNumber value="${prodotto.prezzoDiListino}" type="currency" currencySymbol="€"/></span>
+                        <span class="discounted-price"><fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/></span>
+                    </c:if>
+                    <c:if test="${prodotto.scontoPercentuale <= 0}">
+                        <span class="normal-price"><fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/></span>
+                    </c:if>
+                </div>
+                <button class="add-to-cart-button">Aggiungi al carrello</button>
+            </div>
+        </c:forEach>
+    </div>
+    <div class="carousel-arrow prev">&lt;</div>
+    <div class="carousel-arrow next">&gt;</div>
+</section>
 </main>
 
 </body>
