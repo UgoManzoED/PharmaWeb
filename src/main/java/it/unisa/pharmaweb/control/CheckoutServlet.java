@@ -35,11 +35,10 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // TODO: Dopo aver fatto i DAO, decommenta queste righe
-        // IndirizzoDAO indirizzoDAO = new IndirizzoDAO();
-        // MetodoPagamentoDAO pagamentoDAO = new MetodoPagamentoDAO();
-        // request.setAttribute("indirizzi", indirizzoDAO.getAllByUserId(utente.getIdUtente()));
-        // request.setAttribute("pagamenti", pagamentoDAO.getAllByUserId(utente.getIdUtente()));
+        IndirizzoDAO indirizzoDAO = new IndirizzoDAO();
+        MetodoPagamentoDAO pagamentoDAO = new MetodoPagamentoDAO();
+        request.setAttribute("indirizzi", indirizzoDAO.getAllByUserId(utente.getIdUtente()));
+        request.setAttribute("pagamenti", pagamentoDAO.getAllByUserId(utente.getIdUtente()));
         
         RequestDispatcher dispatcher = request.getRequestDispatcher("/checkout.jsp");
         dispatcher.forward(request, response);
