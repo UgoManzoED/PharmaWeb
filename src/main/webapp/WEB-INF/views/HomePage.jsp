@@ -105,8 +105,11 @@
 </section>
 </main>
 
+<%--inclusione js homepage--%>
+<script src="${pageContext.request.contextPath}/js/home.js"></script>
+
 <%--inclusione footer--%>
-<$@ include file="/WEB-INF/jspf/footer.jsp" %>
+<%@ include file="/WEB-INF/jspf/footer.jsp" %>
 
 
 </body>

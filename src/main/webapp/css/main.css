@@ -112,3 +112,38 @@ main {
     font-size: 0.9em;
     color: #2c3e50;
 }
+
+/* Stili per le notifiche Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #28a745;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 2000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size: 1.1em;
+}
+
+.toast.error {
+    background-color: #dc3545; /* Rosso per gli errori */
+}
+
+/* Stili per le icone dell'header */
+.icon-link { text-decoration: none; }
+.icon-placeholder { position: relative; } /* Necessario per posizionare il contatore */
+.icon-counter {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+}
