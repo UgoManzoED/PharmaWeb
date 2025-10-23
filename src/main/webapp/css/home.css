@@ -5,15 +5,24 @@ body {
     background-color: #f0f2f5;
 }
 
-/* header */
+/* header -- MODIFICATO PER ESSERE FISSO */
 .main-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: #c8e6c9;
     padding: 15px 30px;
-    border-bottom: 1px solid #c8e6c9;
+    border-bottom: 1px solid #a5d6a7; /* Bordo leggermente più scuro per staccare */
+    
+    /* --- Proprietà per rendere l'header fisso  */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Assicura che sia sopra tutto */
+    box-sizing: border-box; /* Include padding e border nella larghezza totale */
 }
+
 .logo-container { font-size: 2em; font-weight: bold; }
 .search-container input { padding: 10px; width: 350px; border: 1px solid #999; border-radius: 20px; }
 .actions-container { display: flex; align-items: center; gap: 15px; }
@@ -22,11 +31,14 @@ body {
 .icon-placeholder.wishlist { background-color: #ff8a80; }
 .icon-placeholder.cart { background-color: #8c9eff; }
 
-/* main content */
+/* main content -- MODIFICATO PER ESSERE FISSO */
 main {
     padding: 20px;
     max-width: 1400px; /* Larghezza massima per il contenuto principale */
     margin: 0 auto;
+
+    /* --- Spaziatura per l'header fisso */
+    padding-top: 85px;
 }
 
 /* barra categorie */
