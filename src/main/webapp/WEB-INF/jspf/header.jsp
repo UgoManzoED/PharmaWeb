@@ -19,21 +19,44 @@
   <!-- metadati e link al CSS -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PharmaWeb - Home</title>
-  <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/home.css">
+  <title>${not empty param.pageTitle ? param.pageTitle : 'PharmaWeb'}</title>
+  <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/main.css">
+  <c:if test="${not empty param.pageCss}">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/${param.pageCss}">
+  </c:if>
 </head>
 <body>
 
 <!-- header -->
 <header class="main-header">
-  <div class="logo-container">LOGO</div>
+  <div class="logo-container">
+    <a href="${pageContext.request.contextPath}/">LOGO</a>
+  </div>
   <div class="search-container">
     <input type="text" placeholder="Ricerca">
   </div>
-  <!-- placeholder di login wishlist e carrello -->
+  <!-- seconda implementazione di carrello e wishlist -->
   <div class="actions-container">
-    <button class="login-button">LOGIN ACCOUNT</button>
-    <div class="icon-placeholder wishlist"></div>
-    <div class="icon-placeholder cart"></div>
+    <c:choose>
+      <c:when test="${not empty sessionScope.utente}">
+        <span>Benvenuto, ${sessionScope.utente.nome}!</span>
+        <a href="${pageContext.request.contextPath}/logout" class="login-button">LOGOUT</a>
+      </c:when>
+      <c:otherwise>
+        <a href="${pageContext.request.contextPath}/login.jsp" class="login-button">LOGIN ACCOUNT</a>
+      </c:otherwise>
+    </c:choose>
+
+    <!-- Icone Wishlist e Carrello (da completare) -->
+    <a href="${pageContext.request.contextPath}/wishlist" class="icon-link">
+      <div class="icon-placeholder wishlist">
+        <span class="icon-counter" id="wishlist-count">0</span>
+      </div>
+    </a>
+    <a href="${pageContext.request.contextPath}/cart" class="icon-link">
+      <div class="icon-placeholder cart">
+        <span class="icon-counter" id="cart-count">0</span>
+      </div>
+    </a>
   </div>
 </header>
