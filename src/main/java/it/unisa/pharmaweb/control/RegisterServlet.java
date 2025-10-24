@@ -24,32 +24,12 @@ public class RegisterServlet extends HttpServlet {
     private static final Pattern PASSWORD_REGEX = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$");
 
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	// Genera un token casuale e unico e lo salva nella sessione dell'utente
-        String csrfToken = UUID.randomUUID().toString();
-        request.getSession().setAttribute("csrfToken", csrfToken);
-        
-        // Passato anche alla richiesta, così la JSP può inserirlo nel form
-        request.setAttribute("csrfToken", csrfToken);
-        
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {        
         RequestDispatcher dispatcher = request.getRequestDispatcher("/register.jsp");
         dispatcher.forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	// --- VERIFICA DEL TOKEN CSRF ---
-        String sessionToken = (String) request.getSession().getAttribute("csrfToken");
-        String requestToken = request.getParameter("csrfToken");
-
-        // Token rimosso dalla sessione per evitare che venga riutilizzato
-        request.getSession().removeAttribute("csrfToken"); 
-
-        if (sessionToken == null || requestToken == null || !sessionToken.equals(requestToken)) {
-            // I token non corrispondono o mancano
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Richiesta CSRF non valida.");
-            return; // Blocca tutto
-        }
-    	
     	String nome = request.getParameter("nome");
         String cognome = request.getParameter("cognome");
         String email = request.getParameter("email");
