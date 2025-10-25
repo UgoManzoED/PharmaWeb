@@ -42,15 +42,14 @@ public class CsrfFilter implements Filter {
         String sessionToken = (String) httpRequest.getSession().getAttribute("csrfToken");
         String requestToken = httpRequest.getParameter("csrfToken");
 
-        // Rimuovi subito il token dalla sessione per prevenire attacchi replay
-        httpRequest.getSession().removeAttribute("csrfToken");
-
         if (sessionToken == null || requestToken == null || !sessionToken.equals(requestToken)) {
             // I token non corrispondono, richiesta CSRF non valida
             httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Richiesta CSRF non valida.");
             // Blocchiamo la richiesta
         } else {
-            // I token corrispondono, la richiesta è legittima
+            // I token corrispondono, la richiesta è legittima, genera un nuovo token per la prossima richiesta
+        	String newCsrfToken = UUID.randomUUID().toString();
+        	httpRequest.getSession().setAttribute("csrfToken", newCsrfToken);
             chain.doFilter(request, response);
         }
     }

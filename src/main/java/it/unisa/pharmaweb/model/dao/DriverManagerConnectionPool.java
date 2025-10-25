@@ -10,7 +10,7 @@ public class DriverManagerConnectionPool {
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/pharmaweb_db?serverTimezone=UTC";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "TSWunisa123";
+    private static final String DB_PASSWORD = "Ugo9999)";
 
     // --- Caricamento driver JDBC di MySQL. (Statico perchè lo eseguo 1 volta al caricamento) ---
     static {

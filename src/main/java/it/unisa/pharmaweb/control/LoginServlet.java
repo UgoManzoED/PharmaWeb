@@ -28,7 +28,7 @@ public class LoginServlet extends HttpServlet {
         // L'utente viene recuperato, e poi si controlla se la password in chiaro corrisponde all'hash salvato
         if (utente == null || !BCrypt.checkpw(passwordInChiaro, utente.getPassword())) {
             request.setAttribute("error", "Credenziali non valide. Riprova.");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/login.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/login.jsp");
             dispatcher.forward(request, response);
             return; // Interrompe l'esecuzione
         }
@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Se l'utente fa una richiesta GET a /login gli mostra la pagina di login.
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/login.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/login.jsp");
         dispatcher.forward(request, response);
     }
 }

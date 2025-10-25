@@ -50,7 +50,7 @@ public class WishlistServlet extends HttpServlet {
                         wishlist.addItem(product);
                     }
                     // Prepara e invia risposta JSON
-                    sendJsonResponse(response, wishlist.getSize(), product != null ? product.getNomeProdotto() : null);
+                    sendJsonResponse(response, session, wishlist.getSize(), product != null ? product.getNomeProdotto() : null);
                     return; // Interrompe l'esecuzione per non fare redirect
                 }
 
@@ -85,7 +85,7 @@ public class WishlistServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/wishlist.jsp");
     }
     
-    private void sendJsonResponse(HttpServletResponse response, int itemCount, String productName) throws IOException {
+    private void sendJsonResponse(HttpServletResponse response, HttpSession session, int itemCount, String productName) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
@@ -96,6 +96,7 @@ public class WishlistServlet extends HttpServlet {
             responseData.put("addedProductName", productName);
         }
         
+        responseData.put("csrfToken", (String) session.getAttribute("csrfToken"));
         Gson gson = new Gson();
         String jsonResponse = gson.toJson(responseData);
         
