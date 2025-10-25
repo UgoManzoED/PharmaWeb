@@ -92,6 +92,7 @@ public class CartServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         responseData.put("cartItemCount", cart.getItems().size());
+        responseData.put("csrfToken", (String) session.getAttribute("csrfToken"));
         
         PrintWriter out = response.getWriter();
         out.print(gson.toJson(responseData));
