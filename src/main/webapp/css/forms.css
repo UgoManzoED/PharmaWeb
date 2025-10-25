@@ -1,0 +1,85 @@
+/* Stile per il contenitore principale del form */
+.form-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.form-container h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Gruppo che contiene label e input */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Assicura che padding non alteri la larghezza */
+    font-size: 1em;
+}
+
+/* Stile per input non validi (gestito da JS) */
+.form-group input.invalid {
+    border-color: #dc3545;
+}
+
+/* Pulsante di submit */
+.form-button {
+    width: 100%;
+    padding: 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.form-button:hover {
+    background-color: #218838;
+}
+
+/* Messaggi di errore (sia da server che da JS) */
+.error-message {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Box per l'errore generale dal server (es. "Credenziali errate") */
+.server-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Link per passare da login a registrazione e viceversa */
+.form-switch-link {
+    text-align: center;
+    margin-top: 20px;
+}
