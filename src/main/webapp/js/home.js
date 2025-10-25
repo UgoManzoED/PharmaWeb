@@ -1,6 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. LOGICA PER I CAROSELLI ---
+    // --- 0. inizializzazione contatori ---
+    // Inizializza i contatori del carrello e wishlist (se non sono già stati impostati)
+    if (document.getElementById('cart-count').textContent === '0') {
+
+    }
+    if (document.getElementById('wishlist-count').textContent === '0') {
+
+    }
+
+    // --- 1. logica per i caroselli ---
     const carousels = document.querySelectorAll('.product-carousel');
 
     carousels.forEach(carousel => {
@@ -22,12 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 2. LOGICA AJAX PER AGGIUNGERE AL CARRELLO ---
+    // --- 2. logica AJAX per aggiungere al carrello ---
     const addToCartButtons = document.querySelectorAll('.add-to-cart-button');
 
     addToCartButtons.forEach(button => {
         button.addEventListener('click', () => {
             const productId = button.dataset.productId;
+
+            // Recupera il token CSRF dalla sessione
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) {
+                console.error('Token CSRF non trovato');
+                showToast('Errore di sicurezza. Ricarica la pagina.', true);
+                return;
+            }
 
             // Usiamo l'API Fetch per la chiamata AJAX
             fetch('cart', {
@@ -35,9 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `action=add&productId=${productId}`
+                body: `action=add&productId=${productId}&csrfToken=${csrfToken}`
             })
-                .then(response => response.json()) // Parsiamo la risposta JSON
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         console.log('Prodotto aggiunto:', data.addedProductName);
@@ -45,34 +67,63 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('cart-count').textContent = data.cartItemCount;
                         // Mostriamo una notifica
                         showToast(`'${data.addedProductName}' è stato aggiunto al carrello!`);
+                        // Aggiorna il token CSRF per la prossima richiesta
+                        if (data.csrfToken) {
+                            document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrfToken);
+                        }
                     } else {
                         showToast(`Errore: ${data.error}`, true);
                     }
                 })
-                .catch(error => console.error('Errore nella chiamata AJAX:', error));
+                .catch(error => {
+                    console.error('Errore nella chiamata AJAX:', error);
+                    showToast('Errore di connessione. Riprova.', true);
+                });
         });
     });
 
-    // --- 3. LOGICA AJAX PER AGGIUNGERE ALLA WISHLIST (molto simile) ---
+    // --- 3. logica AJAX per aggiungere alla wishlist (molto simile) ---
     const addToWishlistButtons = document.querySelectorAll('.add-to-wishlist-button');
 
     addToWishlistButtons.forEach(button => {
         button.addEventListener('click', () => {
             const productId = button.dataset.productId;
 
+            // Recupera il token CSRF dalla sessione
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) {
+                console.error('Token CSRF non trovato');
+                showToast('Errore di sicurezza. Ricarica la pagina.', true);
+                return;
+            }
+
             fetch('wishlist', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `action=add&productId=${productId}`
+                body: `action=add&productId=${productId}&csrfToken=${csrfToken}`
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if(data.success) {
                         document.getElementById('wishlist-count').textContent = data.wishlistItemCount;
                         showToast(`'${data.addedProductName}' è stato aggiunto alla wishlist!`);
+                        // Aggiorna il token CSRF per la prossima richiesta
+                        if (data.csrfToken) {
+                            document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrfToken);
+                        }
+                    } else {
+                        showToast(`Errore: ${data.error}`, true);
                     }
                 })
-                .catch(error => console.error('Errore AJAX wishlist:', error));
+                .catch(error => {
+                    console.error('Errore AJAX wishlist:', error);
+                    showToast('Errore di connessione. Riprova.', true);
+                });
         });
     });
 
