@@ -26,7 +26,6 @@ public class CheckoutServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
-        // L'utente deve essere loggato per vedere questa pagina (controllato dal filtro)
         UtenteBean utente = (UtenteBean) session.getAttribute("utente");
         CartBean cart = (CartBean) session.getAttribute("cart");
 
@@ -35,20 +34,16 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // TODO: Dopo aver fatto i DAO, decommenta queste righe
-        // IndirizzoDAO indirizzoDAO = new IndirizzoDAO();
-        // MetodoPagamentoDAO pagamentoDAO = new MetodoPagamentoDAO();
-        // request.setAttribute("indirizzi", indirizzoDAO.getAllByUserId(utente.getIdUtente()));
-        // request.setAttribute("pagamenti", pagamentoDAO.getAllByUserId(utente.getIdUtente()));
+        IndirizzoDAO indirizzoDAO = new IndirizzoDAO();
+        MetodoPagamentoDAO pagamentoDAO = new MetodoPagamentoDAO();
+        
+        request.setAttribute("indirizzi", indirizzoDAO.getAllByUserId(utente.getIdUtente()));
+        request.setAttribute("pagamenti", pagamentoDAO.getAllByUserId(utente.getIdUtente()));
         
         RequestDispatcher dispatcher = request.getRequestDispatcher("/checkout.jsp");
         dispatcher.forward(request, response);
     }
 
-    /**
-     * Processa l'ordine dopo che l'utente ha confermato il checkout.
-     * Esegue tutte le operazioni in una transazione di database.
-     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         UtenteBean utente = (UtenteBean) session.getAttribute("utente");
@@ -59,54 +54,66 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // --- VALIDAZIONE STOCK PRELIMINARE ---
+        String indirizzoIdStr = request.getParameter("indirizzoId");
+        String pagamentoIdStr = request.getParameter("pagamentoId");
+        String puntiDaUsareStr = request.getParameter("puntiDaUsare");
+
+        if (indirizzoIdStr == null || indirizzoIdStr.trim().isEmpty() || 
+            pagamentoIdStr == null || pagamentoIdStr.trim().isEmpty()) {
+            
+            request.setAttribute("error", "Per favore, seleziona un indirizzo e un metodo di pagamento.");
+            doGet(request, response);
+            return;
+        }
+
+        IndirizzoDAO indirizzoDAO = new IndirizzoDAO();
+        MetodoPagamentoDAO pagamentoDAO = new MetodoPagamentoDAO();
+        
+        IndirizzoBean indirizzoScelto = indirizzoDAO.getById(Integer.parseInt(indirizzoIdStr));
+        MetodoPagamentoBean pagamentoScelto = pagamentoDAO.getById(Integer.parseInt(pagamentoIdStr));
+
+        if (indirizzoScelto == null || indirizzoScelto.getIdUtente() != utente.getIdUtente() ||
+            pagamentoScelto == null || pagamentoScelto.getIdUtente() != utente.getIdUtente()) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Accesso non autorizzato ai dati.");
+            return;
+        }
+
+        String indirizzoCompleto = String.format("%s, %s, %s %s (%s)", 
+                                    indirizzoScelto.getNomeDestinatario(), indirizzoScelto.getVia(), 
+                                    indirizzoScelto.getCap(), indirizzoScelto.getCitta(), indirizzoScelto.getProvincia());
+        String infoPagamento = String.format("%s terminante in %s", 
+                                    pagamentoScelto.getTipoCarta(), pagamentoScelto.getUltime4Cifre());
+
+        // Validazione stock
         ProductDAO productDAO = new ProductDAO();
         for (CartItemBean item : cart.getItems()) {
             if (!productDAO.isAvailable(item.getProduct().getIdProdotto(), item.getQuantity())) {
-                session.setAttribute("cartError", "Prodotto '" + item.getProduct().getNomeProdotto() + "' non più disponibile nella quantità richiesta. Rimuovilo o modifica la quantità.");
+                session.setAttribute("cartError", "Prodotto '" + item.getProduct().getNomeProdotto() + "' non più disponibile.");
                 response.sendRedirect(request.getContextPath() + "/cart.jsp");
                 return;
             }
         }
         
-        // --- RECUPERO DATI DAL FORM ---
-        String puntiDaUsareStr = request.getParameter("puntiDaUsare");
-        int puntiDaUsare = 0;
-        if (puntiDaUsareStr != null && !puntiDaUsareStr.isEmpty()) {
-            try {
-                puntiDaUsare = Integer.parseInt(puntiDaUsareStr);
-            } catch (NumberFormatException e) {
-                // L'utente ha inserito un valore non numerico, ignoriamo
-                puntiDaUsare = 0;
-            }
-        }
-        // Sicurezza: non si possono usare più punti di quelli che si possiedono
+        int puntiDaUsare = (puntiDaUsareStr != null && !puntiDaUsareStr.isEmpty()) ? Integer.parseInt(puntiDaUsareStr) : 0;
         if (puntiDaUsare > utente.getPuntiFedelta() || puntiDaUsare < 0) {
             puntiDaUsare = 0;
         }
 
-        // TODO: Recupera l'indirizzo e il metodo di pagamento scelti dall'utente
-        // Esempio: String indirizzoScelto = "Via Roma 1...";
-        String indirizzoScelto = "Indirizzo non implementato"; // Placeholder
-        String pagamentoScelto = "Pagamento non implementato"; // Placeholder
-
-        // --- CALCOLO LOGICA DI BUSINESS ---
-        double subtotale = cart.getTotal();
-        double scontoPunti = puntiDaUsare; // 1 punto = 1 euro
-        double importoFinale = subtotale - scontoPunti;
-        if(importoFinale < 0) importoFinale = 0; // Un ordine non può avere totale negativo
-
-        int puntiGuadagnati = (int) Math.floor(importoFinale / 20); // 1 punto ogni 20 euro spesi
+        double importoFinale = cart.getTotal() - puntiDaUsare;
+        if(importoFinale < 0) importoFinale = 0;
+        int puntiGuadagnati = (int) Math.floor(importoFinale / 20);
 
         Connection conn = null;
         try {
-            // --- PREPARAZIONE OGGETTI PER IL DB ---
+            conn = DriverManagerConnectionPool.getConnection();
+            conn.setAutoCommit(false); // INIZIA TRANSAZIONE
+
             OrdineBean ordine = new OrdineBean();
             ordine.setIdUtente(utente.getIdUtente());
             ordine.setDataOrdine(new Date());
             ordine.setImportoTotale(importoFinale);
-            ordine.setIndirizzoSpedizione(indirizzoScelto);
-            ordine.setMetodoPagamentoUtilizzato(pagamentoScelto);
+            ordine.setIndirizzoSpedizione(indirizzoCompleto);
+            ordine.setMetodoPagamentoUtilizzato(infoPagamento);
             ordine.setStato("In elaborazione");
             ordine.setPuntiGuadagnati(puntiGuadagnati);
             ordine.setPuntiUtilizzati(puntiDaUsare);
@@ -117,11 +124,7 @@ public class CheckoutServlet extends HttpServlet {
             }
             ordine.setRighe(righe);
 
-            // --- ESECUZIONE DELLA TRANSAZIONE ---
-            conn = DriverManagerConnectionPool.getConnection();
-            conn.setAutoCommit(false); // INIZIA TRANSAZIONE
-
-            // 1. Salva ordine e righe
+            // 1. Salva ordine
             OrdineDAO ordineDAO = new OrdineDAO();
             ordineDAO.saveOrdine(conn, ordine);
 
@@ -137,34 +140,19 @@ public class CheckoutServlet extends HttpServlet {
 
             conn.commit(); // CONFERMA TRANSAZIONE
 
-            // --- OPERAZIONI POST-SUCCESSO ---
-            // Aggiorna l'oggetto utente nella sessione con il nuovo saldo punti
+            // Aggiorna utente in sessione e svuota carrello
             utente.setPuntiFedelta(nuovoSaldoPunti);
             session.setAttribute("utente", utente);
-            // Svuota il carrello
-            session.removeAttribute("cart"); 
+            session.removeAttribute("cart");
             
-            // Reindirizza alla pagina di conferma
             response.sendRedirect(request.getContextPath() + "/ordine-confermato.jsp?id=" + ordine.getIdOrdine());
 
         } catch (SQLException e) {
             e.printStackTrace();
-            if (conn != null) {
-                try {
-                    conn.rollback(); // ANNULLA TUTTO IN CASO DI ERRORE
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
+            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             response.sendRedirect(request.getContextPath() + "/errore.jsp");
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            if (conn != null) try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 }

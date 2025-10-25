@@ -3,6 +3,8 @@ package it.unisa.pharmaweb.model.dao;
 import it.unisa.pharmaweb.model.bean.OrdineBean;
 import it.unisa.pharmaweb.model.bean.RigaOrdineBean;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrdineDAO {
     /**
@@ -49,5 +51,37 @@ public class OrdineDAO {
             }
             stmtRiga.executeBatch();
         }
+    }
+    
+    /**
+     * Recupera tutti gli ordini effettuati da un utente specifico, ordinati dal più recente.
+     * @param idUtente l'ID dell'utente di cui recuperare lo storico.
+     * @return una List di OrdineBean.
+     */
+    public List<OrdineBean> getOrdiniByUtente(int idUtente) {
+        List<OrdineBean> ordini = new ArrayList<>();
+        // Usiamo la VistaRiepilogoOrdini che abbiamo già creato
+        String sql = "SELECT * FROM VistaRiepilogoOrdini WHERE ID_Utente = ? ORDER BY DataOrdine DESC";
+
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, idUtente);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                OrdineBean ordine = new OrdineBean();
+                ordine.setIdOrdine(rs.getInt("ID_Ordine"));
+                ordine.setDataOrdine(rs.getTimestamp("DataOrdine"));
+                ordine.setImportoTotale(rs.getDouble("ImportoTotale"));
+                ordine.setStato(rs.getString("Stato"));
+                ordine.setIndirizzoSpedizione(rs.getString("IndirizzoSpedizione"));
+                ordine.setMetodoPagamentoUtilizzato(rs.getString("MetodoPagamentoUtilizzato"));
+                ordini.add(ordine);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ordini;
     }
 }
