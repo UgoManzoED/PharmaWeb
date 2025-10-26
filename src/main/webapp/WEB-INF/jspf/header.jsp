@@ -11,7 +11,7 @@
 <!-- Importo la libreria JSTL Formatting per formattare i numeri (prezzi) -->
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<!-- Prima implementazione della homepage  -->
+<!-- Seconda implementazione della homepage  -->
 
 <!DOCTYPE html>
 <html>
@@ -43,7 +43,7 @@
         <a href="${pageContext.request.contextPath}/logout" class="login-button">LOGOUT</a>
       </c:when>
       <c:otherwise>
-        <a href="${pageContext.request.contextPath}/login.jsp" class="login-button">LOGIN ACCOUNT</a>
+        <a href="${pageContext.request.contextPath}/login" class="login-button">LOGIN ACCOUNT</a>
       </c:otherwise>
     </c:choose>
 
