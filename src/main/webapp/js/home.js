@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: `action=add&productId=${productId}&csrfToken=${csrfToken}`
             })
@@ -99,7 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             fetch('wishlist', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: `action=add&productId=${productId}&csrfToken=${csrfToken}`
             })
                 .then(response => {
