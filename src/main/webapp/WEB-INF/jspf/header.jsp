@@ -19,6 +19,7 @@
   <!-- metadati e link al CSS -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="${sessionScope.csrfToken}">
   <title>${not empty param.pageTitle ? param.pageTitle : 'PharmaWeb'}</title>
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/main.css">
   <c:if test="${not empty param.pageCss}">
