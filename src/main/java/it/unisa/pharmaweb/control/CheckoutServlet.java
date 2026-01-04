@@ -30,7 +30,7 @@ public class CheckoutServlet extends HttpServlet {
         CartBean cart = (CartBean) session.getAttribute("cart");
 
         if (cart == null || cart.getItems().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/cart.jsp");
+            response.sendRedirect(request.getContextPath() + "/WEB-INF/views/cart.jsp");
             return;
         }
 
@@ -40,7 +40,7 @@ public class CheckoutServlet extends HttpServlet {
         request.setAttribute("indirizzi", indirizzoDAO.getAllByUserId(utente.getIdUtente()));
         request.setAttribute("pagamenti", pagamentoDAO.getAllByUserId(utente.getIdUtente()));
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/checkout.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/checkout.jsp");
         dispatcher.forward(request, response);
     }
 
@@ -89,7 +89,7 @@ public class CheckoutServlet extends HttpServlet {
         for (CartItemBean item : cart.getItems()) {
             if (!productDAO.isAvailable(item.getProduct().getIdProdotto(), item.getQuantity())) {
                 session.setAttribute("cartError", "Prodotto '" + item.getProduct().getNomeProdotto() + "' non più disponibile.");
-                response.sendRedirect(request.getContextPath() + "/cart.jsp");
+                response.sendRedirect(request.getContextPath() + "/WEB-INF/views/cart.jsp");
                 return;
             }
         }
@@ -150,7 +150,7 @@ public class CheckoutServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
             if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            response.sendRedirect(request.getContextPath() + "/errore.jsp");
+            response.sendRedirect(request.getContextPath() + "/WEB-INF/views/errore500.jsp");
         } finally {
             if (conn != null) try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }

@@ -44,8 +44,19 @@ public class CsrfFilter implements Filter {
 
         if (sessionToken == null || requestToken == null || !sessionToken.equals(requestToken)) {
             // I token non corrispondono, richiesta CSRF non valida
-            httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Richiesta CSRF non valida.");
-            // Blocchiamo la richiesta
+            
+        	// Controllo Richiesta AJAX
+        	if("XMLHttpRequest".equals(httpRequest.getHeader("X-Requested-With"))
+        			|| httpRequest.getHeader("Accept") != null
+        			&& httpRequest.getHeader("Accept").contains("application/json")) {
+        		// Rispondo con JSON
+        		httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        		httpResponse.setContentType("application/json; charset=UTF-8");
+        		httpResponse.getWriter().write("{\"success\":false,\"error\":\"Errore di sicurezza. Ricarica la pagina.\"}");
+        		httpResponse.getWriter().flush();
+        	} else {
+        		httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Richiesta CSRF non valida.");
+        	}
         } else {
             // I token corrispondono, la richiesta è legittima, genera un nuovo token per la prossima richiesta
         	String newCsrfToken = UUID.randomUUID().toString();

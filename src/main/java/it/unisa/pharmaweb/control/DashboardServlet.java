@@ -39,7 +39,7 @@ public class DashboardServlet extends HttpServlet {
         request.setAttribute("pagamenti", pagamentoDAO.getAllByUserId(utente.getIdUtente()));
 
         // Inoltra alla pagina JSP della dashboard
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/dashboard.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/dashboard.jsp");
         dispatcher.forward(request, response);
     }
 }
