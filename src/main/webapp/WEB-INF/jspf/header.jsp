@@ -34,7 +34,10 @@
     <a href="${pageContext.request.contextPath}/">LOGO</a>
   </div>
   <div class="search-container">
-    <input type="text" placeholder="Ricerca">
+    <form action="${pageContext.request.contextPath}/catalogo" method="get" class="search-form">
+      <input type="text" name="q" placeholder="Cerca prodotti..." value="${param.q}" required>
+      <button type="submit" class="search-button">🔍</button>
+    </form>
   </div>
   <!-- seconda implementazione di carrello e wishlist -->
   <div class="actions-container">
@@ -48,15 +51,19 @@
       </c:otherwise>
     </c:choose>
 
-    <!-- Icone Wishlist e Carrello (da completare) -->
+    <!-- Icone Wishlist e Carrello -->
     <a href="${pageContext.request.contextPath}/wishlist" class="icon-link">
       <div class="icon-placeholder wishlist">
-        <span class="icon-counter" id="wishlist-count">0</span>
+        <span class="icon-counter" id="wishlist-count">
+          ${not empty sessionScope.wishlist ? sessionScope.wishlist.size : 0}
+        </span>
       </div>
     </a>
     <a href="${pageContext.request.contextPath}/cart" class="icon-link">
       <div class="icon-placeholder cart">
-        <span class="icon-counter" id="cart-count">0</span>
+        <span class="icon-counter" id="cart-count">
+          ${not empty sessionScope.cart ? sessionScope.cart.items.size() : 0}
+        </span>
       </div>
     </a>
   </div>
