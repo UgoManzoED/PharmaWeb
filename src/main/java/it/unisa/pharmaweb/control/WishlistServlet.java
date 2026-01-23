@@ -82,7 +82,7 @@ public class WishlistServlet extends HttpServlet {
             return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/wishlist.jsp");
+        response.sendRedirect(request.getContextPath() + "/WEB-INF/views/wishlist.jsp");
     }
     
     private void sendJsonResponse(HttpServletResponse response, HttpSession session, int itemCount, String productName) throws IOException {
@@ -106,6 +106,6 @@ public class WishlistServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/wishlist.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/wishlist.jsp").forward(request, response);
     }
 }

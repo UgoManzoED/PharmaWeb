@@ -58,7 +58,7 @@ public class CartServlet extends HttpServlet {
                     cart.removeItem(productId);
                     responseData.put("success", true);
                     // Ricarichiamo la pagina perché la rimozione avviene dalla pagina del carrello
-                    response.sendRedirect(request.getContextPath() + "/cart.jsp");
+                    response.sendRedirect(request.getContextPath() + "/WEB-INF/views/cart.jsp");
                     return;
                 } else if ("update".equals(action)) {
                     int productId = Integer.parseInt(request.getParameter("productId"));
@@ -73,12 +73,12 @@ public class CartServlet extends HttpServlet {
                         responseData.put("error", "La quantità richiesta non è disponibile.");
                     }
                     // L'update avviene dalla pagina del carrello, quindi ricarichiamo
-                    response.sendRedirect(request.getContextPath() + "/cart.jsp");
+                    response.sendRedirect(request.getContextPath() + "/WEB-INF/views/cart.jsp");
                     return;
                 } else if ("clear".equals(action)) {
                     cart.clear();
                     responseData.put("success", true);
-                    response.sendRedirect(request.getContextPath() + "/cart.jsp");
+                    response.sendRedirect(request.getContextPath() + "/WEB-INF/views/cart.jsp");
                     return;
                 }
             }
@@ -100,6 +100,6 @@ public class CartServlet extends HttpServlet {
     }
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/cart.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/cart.jsp").forward(request, response);
     }
 }
