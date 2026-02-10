@@ -31,14 +31,15 @@
             </div>
             
             <!-- Debug info (solo in sviluppo) -->
-            <c:if test="${not empty pageContext.errorData.throwable}">
+            <c:if test="${not empty requestScope['jakarta.servlet.error.exception']}">
                 <details class="error-debug">
                     <summary>Dettagli tecnici</summary>
                     <div class="debug-info">
-                        <p><strong>Tipo:</strong> ${pageContext.errorData.throwable.class.name}</p>
-                        <p><strong>Messaggio:</strong> ${pageContext.errorData.throwable.message}</p>
-                        <c:if test="${not empty pageContext.errorData.requestURI}">
-                            <p><strong>URI:</strong> ${pageContext.errorData.requestURI}</p>
+                        <p><strong>Tipo:</strong> ${requestScope['jakarta.servlet.error.exception_type']}</p>
+                        <p><strong>Messaggio:</strong> ${requestScope['jakarta.servlet.error.message']}</p>
+                        <p><strong>URI:</strong> ${requestScope['jakarta.servlet.error.request_uri']}</p>
+                        <c:if test="${not empty requestScope['jakarta.servlet.error.servlet_name']}">
+                            <p><strong>Servlet:</strong> ${requestScope['jakarta.servlet.error.servlet_name']}</p>
                         </c:if>
                     </div>
                 </details>
