@@ -84,4 +84,54 @@ public class OrdineDAO {
         }
         return ordini;
     }
+    
+    /**
+     * Recupera gli ordini filtrati per data e/o cliente.
+     * Se un parametro è null, viene ignorato nel filtro.
+     */
+    public List<OrdineBean> getAllOrdini(String startDate, String endDate, String emailCliente) {
+        List<OrdineBean> ordini = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM VistaRiepilogoOrdini WHERE 1=1");
+        
+        // Costruzione dinamica della query
+        if (startDate != null && !startDate.isEmpty()) {
+            sql.append(" AND DataOrdine >= ?");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql.append(" AND DataOrdine <= ?");
+        }
+        if (emailCliente != null && !emailCliente.isEmpty()) {
+            sql.append(" AND EmailCliente LIKE ?");
+        }
+        
+        sql.append(" ORDER BY DataOrdine DESC");
+
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            
+            int index = 1;
+            if (startDate != null && !startDate.isEmpty()) {
+                stmt.setString(index++, startDate + " 00:00:00");
+            }
+            if (endDate != null && !endDate.isEmpty()) {
+                stmt.setString(index++, endDate + " 23:59:59");
+            }
+            if (emailCliente != null && !emailCliente.isEmpty()) {
+                stmt.setString(index++, "%" + emailCliente + "%");
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                OrdineBean ordine = new OrdineBean();
+                ordine.setIdOrdine(rs.getInt("ID_Ordine"));
+                ordine.setDataOrdine(rs.getTimestamp("DataOrdine"));
+                ordine.setImportoTotale(rs.getDouble("ImportoTotale"));
+                ordine.setStato(rs.getString("Stato"));
+                ordini.add(ordine);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ordini;
+    }
 }
