@@ -30,7 +30,7 @@ public class CheckoutServlet extends HttpServlet {
         CartBean cart = (CartBean) session.getAttribute("cart");
 
         if (cart == null || cart.getItems().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/WEB-INF/views/cart.jsp");
+            response.sendRedirect(request.getContextPath() + "/cart");
             return;
         }
 
@@ -89,7 +89,7 @@ public class CheckoutServlet extends HttpServlet {
         for (CartItemBean item : cart.getItems()) {
             if (!productDAO.isAvailable(item.getProduct().getIdProdotto(), item.getQuantity())) {
                 session.setAttribute("cartError", "Prodotto '" + item.getProduct().getNomeProdotto() + "' non più disponibile.");
-                response.sendRedirect(request.getContextPath() + "/WEB-INF/views/cart.jsp");
+                response.sendRedirect(request.getContextPath() + "/cart");
                 return;
             }
         }

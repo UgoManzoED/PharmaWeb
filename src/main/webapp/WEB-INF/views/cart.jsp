@@ -134,7 +134,7 @@
                             <%-- Mostra bottone checkout solo se l'utente è loggato, altrimenti chiede il login --%>
                             <c:choose>
                                 <c:when test="${not empty sessionScope.utente}">
-                                    <a href="${pageContext.request.contextPath}/checkout" class="checkout-btn">
+                                    <a href="${pageContext.request.contextPath}/area-riservata/checkout" class="checkout-btn">
                                         Procedi all'ordine
                                     </a>
                                 </c:when>
