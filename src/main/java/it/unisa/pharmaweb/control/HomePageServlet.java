@@ -33,7 +33,7 @@ public class HomePageServlet extends HttpServlet {
         request.setAttribute("popularProducts", popularProducts);
         request.setAttribute("discountedProducts", discountedProducts);
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/HomePage.jsp");
         dispatcher.forward(request, response);
     }
 }
