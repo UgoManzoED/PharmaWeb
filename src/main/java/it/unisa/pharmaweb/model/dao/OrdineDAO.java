@@ -134,4 +134,35 @@ public class OrdineDAO {
         }
         return ordini;
     }
+    
+    /**
+     * Recupera un singolo ordine tramite il suo ID.
+     * @param idOrdine l'ID dell'ordine da cercare.
+     * @return l'oggetto OrdineBean popolato, o null se non trovato.
+     */
+    public OrdineBean getOrdineById(int idOrdine) {
+        String sql = "SELECT * FROM VistaRiepilogoOrdini WHERE ID_Ordine = ?";
+        
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, idOrdine);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                OrdineBean ordine = new OrdineBean();
+                ordine.setIdOrdine(rs.getInt("ID_Ordine"));
+                ordine.setDataOrdine(rs.getTimestamp("DataOrdine"));
+                ordine.setImportoTotale(rs.getDouble("ImportoTotale"));
+                ordine.setStato(rs.getString("Stato"));
+                ordine.setIndirizzoSpedizione(rs.getString("IndirizzoSpedizione"));
+                ordine.setMetodoPagamentoUtilizzato(rs.getString("MetodoPagamentoUtilizzato"));
+                ordine.setIdUtente(rs.getInt("ID_Utente"));
+                return ordine;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

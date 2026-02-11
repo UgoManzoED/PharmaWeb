@@ -150,7 +150,7 @@ public class CheckoutServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
             if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            response.sendRedirect(request.getContextPath() + "/WEB-INF/views/errore500.jsp");
+            throw new ServletException("Errore durante il checkout", e);
         } finally {
             if (conn != null) try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
