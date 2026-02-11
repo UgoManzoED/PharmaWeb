@@ -123,3 +123,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
 });
+
+// Funzioni globali per toggle form inline
+function toggleAddressForm() {
+    const form = document.getElementById('addAddressForm');
+    const overlay = document.getElementById('formOverlay');
+    const paymentForm = document.getElementById('addPaymentForm');
+    const isHidden = form.style.display === 'none' || form.style.display === '';
+    
+    if (isHidden) {
+        // Aggiorna il token CSRF prima di aprire il form
+        updateCsrfToken('addressForm');
+        form.style.display = 'block';
+        overlay.style.display = 'block';
+        paymentForm.style.display = 'none';
+    } else {
+        form.style.display = 'none';
+        overlay.style.display = 'none';
+        document.getElementById('addressForm').reset();
+    }
+}
+
+function togglePaymentForm() {
+    const form = document.getElementById('addPaymentForm');
+    const overlay = document.getElementById('formOverlay');
+    const addressForm = document.getElementById('addAddressForm');
+    const isHidden = form.style.display === 'none' || form.style.display === '';
+    
+    if (isHidden) {
+        // Aggiorna il token CSRF prima di aprire il form
+        updateCsrfToken('paymentForm');
+        form.style.display = 'block';
+        overlay.style.display = 'block';
+        addressForm.style.display = 'none';
+    } else {
+        form.style.display = 'none';
+        overlay.style.display = 'none';
+        document.getElementById('paymentForm').reset();
+    }
+}
+
+// Funzione per aggiornare il token CSRF
+function updateCsrfToken(formId) {
+    // Prendi il token più aggiornato dal form principale del checkout
+    const checkoutForm = document.getElementById('checkoutForm');
+    const currentToken = checkoutForm ? checkoutForm.querySelector('input[name="csrfToken"]').value : '';
+    
+    // Aggiorna il token nel form popup
+    const popupForm = document.getElementById(formId);
+    const tokenInput = popupForm.querySelector('input[name="csrfToken"]');
+    if (tokenInput && currentToken) {
+        tokenInput.value = currentToken;
+    }
+}
