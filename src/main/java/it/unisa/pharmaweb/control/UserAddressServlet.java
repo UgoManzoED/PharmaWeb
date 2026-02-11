@@ -65,6 +65,6 @@ public class UserAddressServlet extends HttpServlet {
                 // Errore ID
             }
         }
-        response.sendRedirect(request.getContextPath() + "/area-riservata/dashboard");
+        response.sendRedirect(request.getContextPath() + "/area-riservata/checkout");
     }
 }
