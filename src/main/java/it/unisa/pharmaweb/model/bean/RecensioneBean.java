@@ -12,6 +12,7 @@ public class RecensioneBean implements Serializable {
     private Date dataRecensione;
     private int idUtente;
     private int idProdotto;
+    private String nomeProdotto; 
     
     // Per la visualizzazione dei nomi utente delle recensioni
     private String nomeUtente; 
@@ -73,5 +74,13 @@ public class RecensioneBean implements Serializable {
 
     public void setNomeUtente(String nomeUtente) {
         this.nomeUtente = nomeUtente;
+    }
+    
+    public String getNomeProdotto() {
+        return nomeProdotto;
+    }
+
+    public void setNomeProdotto(String nomeProdotto) {
+        this.nomeProdotto = nomeProdotto;
     }
 }
