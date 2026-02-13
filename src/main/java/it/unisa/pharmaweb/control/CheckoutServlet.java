@@ -145,7 +145,7 @@ public class CheckoutServlet extends HttpServlet {
             session.setAttribute("utente", utente);
             session.removeAttribute("cart");
             
-            response.sendRedirect(request.getContextPath() + "/ordine-confermato.jsp?id=" + ordine.getIdOrdine());
+            response.sendRedirect(request.getContextPath() + "/ordine-confermato?id=" + ordine.getIdOrdine());
 
         } catch (SQLException e) {
             e.printStackTrace();
