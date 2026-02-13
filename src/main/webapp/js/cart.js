@@ -5,32 +5,25 @@
  * @param {number} change - La variazione (+1 o -1)
  * @param {number} maxStock - La quantità massima disponibile in magazzino
  */
-function updateQty(productId, change, maxStock) {
-    // Recupera l'input della quantità tramite ID univoco
+async function updateQty(productId, change, maxStock) {
     const input = document.getElementById('qty-' + productId);
-    
-    if (!input) {
-        console.error("Input quantità non trovato per prodotto: " + productId);
-        return;
+    let newQty = parseInt(input.value) + change;
+
+    if (newQty < 1 || newQty > parseInt(maxStock)) return;
+
+    const metaToken = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = metaToken?.getAttribute('content');
+
+    try {
+        const response = await fetch('cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+            body: `action=update&productId=${productId}&quantity=${newQty}&csrfToken=${encodeURIComponent(csrfToken)}`
+        });
+
+        location.reload(); 
+        
+    } catch (error) {
+        showToast("Errore durante l'aggiornamento", true);
     }
-
-    let currentQty = parseInt(input.value);
-    let newQty = currentQty + change;
-
-    // Controllo minimo: non scendere sotto 1 (per rimuovere c'è il tasto apposito)
-    if (newQty < 1) {
-        return;
-    }
-
-    // Controllo massimo: non superare la disponibilità di magazzino
-    if (newQty > parseInt(maxStock)) {
-        alert("Spiacenti, hai raggiunto la quantità massima disponibile per questo prodotto.");
-        return;
-    }
-
-    // Aggiorna visivamente l'input
-    input.value = newQty;
-
-    // Invia automaticamente il form per aggiornare il server
-    input.form.submit();
 }

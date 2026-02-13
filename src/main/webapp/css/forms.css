@@ -1,85 +1,139 @@
+/* ============================================================
+   STILI PER I FORM (Login, Registrazione, Profilo)
+   ============================================================ */
+
 /* Stile per il contenitore principale del form */
 .form-container {
     max-width: 500px;
     margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
+    padding: 40px;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: 1px solid #eee;
 }
 
 .form-container h1 {
     text-align: center;
-    margin-bottom: 25px;
-    color: #333;
+    margin-bottom: 30px;
+    color: var(--primary-blue);
+    font-size: 1.8em;
 }
 
 /* Gruppo che contiene label e input */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    position: relative;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: bold;
-    color: #555;
+    font-weight: 600;
+    color: var(--primary-blue);
+    font-size: 0.95em;
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px;
+    padding: 12px 15px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box; /* Assicura che padding non alteri la larghezza */
+    border-radius: 6px;
+    box-sizing: border-box;
     font-size: 1em;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
 }
 
-/* Stile per input non validi (gestito da JS) */
+/* Feedback visivo quando si clicca nel campo */
+.form-group input:focus {
+    border-color: var(--secondary-green);
+    background-color: var(--white);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Stile per input non validi */
 .form-group input.invalid {
-    border-color: #dc3545;
+    border-color: var(--error-red);
+    background-color: #fff8f8;
 }
 
 /* Pulsante di submit */
 .form-button {
     width: 100%;
     padding: 15px;
-    background-color: #28a745;
+    background-color: var(--secondary-green);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: var(--border-radius);
     cursor: pointer;
     font-size: 1.1em;
     font-weight: bold;
-    transition: background-color 0.2s;
+    transition: all 0.3s;
+    margin-top: 10px;
 }
 
 .form-button:hover {
-    background-color: #218838;
+    background-color: #388e3c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-/* Messaggi di errore (sia da server che da JS) */
+.form-button:active {
+    transform: translateY(0);
+}
+
+/* Messaggi di errore */
 .error-message {
-    color: #dc3545;
-    font-size: 0.9em;
-    margin-top: 5px;
+    color: var(--error-red);
+    font-size: 0.85em;
+    margin-top: 6px;
     display: block;
+    font-weight: 500;
 }
 
-/* Box per l'errore generale dal server (es. "Credenziali errate") */
+/* Box per l'errore generale dal server */
 .server-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
     padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 25px;
     text-align: center;
+    font-weight: 500;
 }
 
 /* Link per passare da login a registrazione e viceversa */
 .form-switch-link {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    font-size: 0.95em;
+}
+
+.form-switch-link a {
+    color: var(--secondary-green);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.form-switch-link a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+    .form-container {
+        margin: 20px;
+        padding: 25px;
+    }
+    
+    .form-container h1 {
+        font-size: 1.5em;
+    }
 }

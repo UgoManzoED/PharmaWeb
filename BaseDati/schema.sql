@@ -114,6 +114,25 @@ CREATE TABLE StoricoPunti (
     FOREIGN KEY (FK_Ordine) REFERENCES Ordine(ID_Ordine) ON DELETE SET NULL
 );
 
+-- Tabella CarrelloPersistente: Memorizza il carrello degli utenti loggati per la persistenza tra sessioni
+CREATE TABLE CarrelloPersistente (
+    FK_Utente INT NOT NULL,
+    FK_Prodotto INT NOT NULL,
+    Quantita INT NOT NULL DEFAULT 1,
+    PRIMARY KEY (FK_Utente, FK_Prodotto),
+    FOREIGN KEY (FK_Utente) REFERENCES Utente(ID_Utente) ON DELETE CASCADE,
+    FOREIGN KEY (FK_Prodotto) REFERENCES Prodotto(ID_Prodotto) ON DELETE CASCADE
+);
+
+-- Tabella WishlistPersistente: Memorizza la wishlist degli utenti loggati per la persistenza tra sessioni
+CREATE TABLE WishlistPersistente (
+    FK_Utente INT NOT NULL,
+    FK_Prodotto INT NOT NULL,
+    PRIMARY KEY (FK_Utente, FK_Prodotto),
+    FOREIGN KEY (FK_Utente) REFERENCES Utente(ID_Utente) ON DELETE CASCADE,
+    FOREIGN KEY (FK_Prodotto) REFERENCES Prodotto(ID_Prodotto) ON DELETE CASCADE
+);
+
 -- --- 3. CREAZIONE DEGLI INDICI PER OTTIMIZZARE LE PERFORMANCE ---
 
 -- Indice sulla chiave esterna dell'utente nella tabella Ordine
@@ -132,6 +151,10 @@ CREATE INDEX idx_indirizzo_utente ON IndirizzoSpedizione(FK_Utente);
 
 -- Indici sulla chiave esterna dell'utente nella tabella MetodoPagamento
 CREATE INDEX idx_pagamento_utente ON MetodoPagamento(FK_Utente);
+
+-- Indici per il carrello e la wishlist persistente
+CREATE INDEX idx_carrello_utente ON CarrelloPersistente(FK_Utente);
+CREATE INDEX idx_wishlist_utente ON WishlistPersistente(FK_Utente);
 
 -- --- 4. CREAZIONE DI VISTE PER SEMPLIFICARE LE QUERY ---
 
