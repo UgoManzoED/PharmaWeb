@@ -93,7 +93,7 @@ public class OrdineDAO {
         List<OrdineBean> ordini = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM VistaRiepilogoOrdini WHERE 1=1");
         
-        // Costruzione dinamica della query
+        // Costruzione dinamica della query in base ai filtri forniti
         if (startDate != null && !startDate.isEmpty()) {
             sql.append(" AND DataOrdine >= ?");
         }
@@ -127,6 +127,11 @@ public class OrdineDAO {
                 ordine.setDataOrdine(rs.getTimestamp("DataOrdine"));
                 ordine.setImportoTotale(rs.getDouble("ImportoTotale"));
                 ordine.setStato(rs.getString("Stato"));
+                ordine.setIndirizzoSpedizione(rs.getString("IndirizzoSpedizione"));
+                ordine.setMetodoPagamentoUtilizzato(rs.getString("MetodoPagamentoUtilizzato"));
+                ordine.setIdUtente(rs.getInt("ID_Utente"));
+                ordine.setEmailCliente(rs.getString("EmailCliente"));
+                
                 ordini.add(ordine);
             }
         } catch (SQLException e) {

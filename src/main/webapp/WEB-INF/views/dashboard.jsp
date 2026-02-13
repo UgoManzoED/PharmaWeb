@@ -145,4 +145,5 @@
 </main>
 
 <script src="${pageContext.request.contextPath}/js/dashboard.js"></script>
+<script src="${pageContext.request.contextPath}/js/dashboard-validation.js"></script>
 <%@ include file="/WEB-INF/jspf/footer.jsp" %>
