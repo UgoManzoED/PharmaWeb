@@ -3,6 +3,8 @@ package it.unisa.pharmaweb.control;
 import com.google.gson.Gson;
 import it.unisa.pharmaweb.model.bean.CartBean;
 import it.unisa.pharmaweb.model.bean.ProductBean;
+import it.unisa.pharmaweb.model.bean.UtenteBean;
+import it.unisa.pharmaweb.model.dao.CartDAO;
 import it.unisa.pharmaweb.model.dao.ProductDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,6 +29,10 @@ public class CartServlet extends HttpServlet {
             session.setAttribute("cart", cart);
         }
         
+        // Recuperiamo l'utente per la persistenza
+        UtenteBean utente = (UtenteBean) session.getAttribute("utente");
+        CartDAO cartDAO = new CartDAO();
+        
         String action = request.getParameter("action");
         Gson gson = new Gson();
         Map<String, Object> responseData = new HashMap<>();
@@ -38,7 +44,6 @@ public class CartServlet extends HttpServlet {
                 if ("add".equals(action)) {
                     int productId = Integer.parseInt(request.getParameter("productId"));
                     int quantityToAdd = 1;
-                    
                     int currentQuantityInCart = cart.getQuantityOfProduct(productId);
                     
                     // CONTROLLO DISPONIBILITÀ
@@ -46,6 +51,12 @@ public class CartServlet extends HttpServlet {
                         ProductBean product = productDAO.getProductById(productId);
                         if (product != null) {
                             cart.addItem(product, quantityToAdd);
+                            
+                            // PERSISTENZA: Se l'utente è loggato, salviamo nel DB
+                            if (utente != null) {
+                                cartDAO.saveOrUpdateCartItem(utente.getIdUtente(), productId, cart.getQuantityOfProduct(productId));
+                            }
+                            
                             responseData.put("success", true);
                             responseData.put("addedProductName", product.getNomeProdotto());
                         }
@@ -56,27 +67,41 @@ public class CartServlet extends HttpServlet {
                 } else if ("remove".equals(action)) {
                     int productId = Integer.parseInt(request.getParameter("productId"));
                     cart.removeItem(productId);
-                    responseData.put("success", true);
-                    // Ricarichiamo la pagina perché la rimozione avviene dalla pagina del carrello
-                    response.sendRedirect(request.getContextPath() + "cart");
+                    
+                    // PERSISTENZA
+                    if (utente != null) {
+                        cartDAO.removeCartItem(utente.getIdUtente(), productId);
+                    }
+                    
+                    response.sendRedirect(request.getContextPath() + "/cart");
                     return;
                 } else if ("update".equals(action)) {
                     int productId = Integer.parseInt(request.getParameter("productId"));
                     int newQuantity = Integer.parseInt(request.getParameter("quantity"));
                     
-                    // Per l'update, controlliamo la disponibilità della nuova quantità totale
                     if(productDAO.isAvailable(productId, newQuantity)) {
                         cart.updateQuantity(productId, newQuantity);
+                        
+                        // PERSISTENZA
+                        if (utente != null) {
+                            cartDAO.saveOrUpdateCartItem(utente.getIdUtente(), productId, newQuantity);
+                        }
+                        
                         responseData.put("success", true);
                     } else {
                         responseData.put("success", false);
                         responseData.put("error", "La quantità richiesta non è disponibile.");
                     }
-                    // L'update avviene dalla pagina del carrello, quindi ricarichiamo
                     response.sendRedirect(request.getContextPath() + "/cart");
                     return;
                 } else if ("clear".equals(action)) {
                     cart.clear();
+                    
+                    // PERSISTENZA
+                    if (utente != null) {
+                        cartDAO.clearCart(utente.getIdUtente());
+                    }
+                    
                     responseData.put("success", true);
                     response.sendRedirect(request.getContextPath() + "/cart");
                     return;
@@ -88,7 +113,7 @@ public class CartServlet extends HttpServlet {
             responseData.put("error", "Richiesta non valida.");
         }
 
-        // --- Risposta JSON per l'azione 'add' (o errori) ---
+        // --- Risposta JSON per l'azione 'add' ---
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         responseData.put("cartItemCount", cart.getItems().size());

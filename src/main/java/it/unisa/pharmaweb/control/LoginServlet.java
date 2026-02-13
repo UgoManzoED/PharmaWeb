@@ -1,6 +1,11 @@
 package it.unisa.pharmaweb.control;
 
+import it.unisa.pharmaweb.model.bean.CartBean;
+import it.unisa.pharmaweb.model.bean.CartItemBean;
+import it.unisa.pharmaweb.model.bean.ProductBean;
 import it.unisa.pharmaweb.model.bean.UtenteBean;
+import it.unisa.pharmaweb.model.bean.WishlistBean;
+import it.unisa.pharmaweb.model.dao.CartDAO;
 import it.unisa.pharmaweb.model.dao.UtenteDAO;
 import java.io.IOException;
 import jakarta.servlet.RequestDispatcher;
@@ -38,12 +43,50 @@ public class LoginServlet extends HttpServlet {
         utente.setPassword(null); // Rimuoviamo la password dall'oggetto prima di metterlo in sessione
         session.setAttribute("utente", utente); // Salviamo l'oggetto utente in modo da disporre dei dati nella sessione
         
+        // --- GESTIONE PERSISTENZA CARRELLO E WISHLIST ---
+        
+        // Recuperiamo i dati temporanei della sessione (prodotti aggiunti da anonimo)
+        CartBean sessionCart = (CartBean) session.getAttribute("cart");
+        WishlistBean sessionWishlist = (WishlistBean) session.getAttribute("wishlist");
+        CartDAO cartDAO = new CartDAO();
+
+        // 1. UNIONE CARRELLO
+        // Recuperiamo il carrello salvato nel DB per questo utente
+        CartBean dbCart = cartDAO.getCartByUser(utente.getIdUtente());
+        
+        if (sessionCart != null) {
+            // Se l'utente aveva aggiunto prodotti da anonimo, li aggiungiamo al carrello del DB
+            for (CartItemBean item : sessionCart.getItems()) {
+                dbCart.addItem(item.getProduct(), item.getQuantity());
+                // Aggiorniamo il record sul database per rendere la modifica permanente
+                cartDAO.saveOrUpdateCartItem(utente.getIdUtente(), 
+                                             item.getProduct().getIdProdotto(), 
+                                             dbCart.getQuantityOfProduct(item.getProduct().getIdProdotto()));
+            }
+        }
+        // Sovrascriviamo il carrello in sessione con quello unificato e persistente
+        session.setAttribute("cart", dbCart);
+
+        // 2. UNIONE WISHLIST
+        // Recuperiamo la wishlist salvata nel DB
+        WishlistBean dbWishlist = cartDAO.getWishlistByUser(utente.getIdUtente());
+        
+        if (sessionWishlist != null) {
+            // Se l'utente aveva aggiunto preferiti da anonimo, li aggiungiamo alla wishlist del DB
+            for (ProductBean p : sessionWishlist.getItems()) {
+                dbWishlist.addItem(p);
+                cartDAO.saveWishlistItem(utente.getIdUtente(), p.getIdProdotto());
+            }
+        }
+        // Sovrascriviamo la wishlist in sessione con quella unificata
+        session.setAttribute("wishlist", dbWishlist);
+
+        // Reindirizzamento alla homepage
         response.sendRedirect(request.getContextPath() + "/");
     }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Se l'utente fa una richiesta GET a /login gli mostra la pagina di login.
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/login.jsp");
         dispatcher.forward(request, response);
     }
