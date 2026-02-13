@@ -38,4 +38,5 @@
   </div>
 </main>
 
+<script src="${pageContext.request.contextPath}/js/login.js"></script>
 <%@ include file="/WEB-INF/jspf/footer.jsp" %>
