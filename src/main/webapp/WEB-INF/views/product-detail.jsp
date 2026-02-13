@@ -18,11 +18,11 @@
             <c:if test="${not empty product.nomeCategoria}">
                 <span>&gt;</span>
                 <a href="${pageContext.request.contextPath}/catalogo?cat=${product.idCategoria}">
-                    ${product.nomeCategoria}
+                    <c:out value="${product.nomeCategoria}"/>
                 </a>
             </c:if>
             <span>&gt;</span>
-            <span>${product.nomeProdotto}</span>
+            <span><c:out value="${product.nomeProdotto}"/></span>
         </div>
 
         <!-- Sezione principale prodotto -->
@@ -43,13 +43,13 @@
 
             <!-- Colonna informazioni -->
             <div class="product-info-section">
-                <h1 class="product-title">${product.nomeProdotto}</h1>
+                <h1 class="product-title"><c:out value="${product.nomeProdotto}"/></h1>
                 
                 <c:if test="${not empty product.nomeCategoria}">
                     <div class="product-category">
                         <span class="category-label">Categoria:</span>
                         <a href="${pageContext.request.contextPath}/catalogo?cat=${product.idCategoria}" class="category-link">
-                            ${product.nomeCategoria}
+                            <c:out value="${product.nomeCategoria}"/>
                         </a>
                     </div>
                 </c:if>
@@ -98,18 +98,18 @@
                 <div class="product-actions-section">
                     <c:choose>
                         <c:when test="${product.quantitaDisponibile > 0}">
-                            <button class="add-to-cart-btn-large" data-product-id="${product.idProdotto}">
+                            <button type="button" class="add-to-cart-btn-large" data-product-id="${product.idProdotto}">
                                 🛒 Aggiungi al carrello
                             </button>
                         </c:when>
                         <c:otherwise>
-                            <button class="add-to-cart-btn-large" disabled>
+                            <button type="button" class="add-to-cart-btn-large" disabled>
                                 Non disponibile
                             </button>
                         </c:otherwise>
                     </c:choose>
                     
-                    <button class="add-to-wishlist-btn-large" data-product-id="${product.idProdotto}">
+                    <button type="button" class="add-to-wishlist-btn-large" data-product-id="${product.idProdotto}">
                         ❤️ Aggiungi ai preferiti
                     </button>
                 </div>
@@ -117,7 +117,7 @@
                 <!-- Descrizione -->
                 <div class="product-description-section">
                     <h2>Descrizione</h2>
-                    <p class="product-description-text">${product.descrizione}</p>
+                    <p class="product-description-text"><c:out value="${product.descrizione}"/></p>
                 </div>
             </div>
         </div>
@@ -133,7 +133,8 @@
                             <div class="review-card">
                                 <div class="review-header">
                                     <div class="review-author">
-                                        <span class="author-name">${recensione.nomeUtente}</span>
+                                        <%-- Good Practice: XSS Prevention con c:out --%>
+                                        <span class="author-name"><c:out value="${recensione.nomeUtente}"/></span>
                                         <span class="review-date">
                                             <fmt:formatDate value="${recensione.dataRecensione}" pattern="dd/MM/yyyy" />
                                         </span>
@@ -153,7 +154,7 @@
                                     </div>
                                 </div>
                                 <c:if test="${not empty recensione.testo}">
-                                    <p class="review-text">${recensione.testo}</p>
+                                    <p class="review-text"><c:out value="${recensione.testo}"/></p>
                                 </c:if>
                             </div>
                         </c:forEach>
@@ -171,34 +172,33 @@
                 <div class="add-review-section">
                     <h3>Lascia una recensione</h3>
                     
-                    <!-- Mostra errore se presente -->
                     <c:if test="${not empty error}">
                         <div class="review-error">${error}</div>
                     </c:if>
                     
                     <form action="${pageContext.request.contextPath}/prodotto" method="post" class="review-form" id="reviewForm">
-                        <input type="hidden" name="productId" value="${product.idProdotto}">
+                        <input type="hidden" name="idProdotto" value="${product.idProdotto}">
                         <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
                         
                         <div class="form-group">
-                            <label for="rating">Valutazione *</label>
+                            <label for="voto">Valutazione *</label>
                             <div class="star-rating-input">
-                                <input type="radio" name="rating" value="5" id="star5" required>
+                                <input type="radio" name="voto" value="5" id="star5" required>
                                 <label for="star5">★</label>
-                                <input type="radio" name="rating" value="4" id="star4">
+                                <input type="radio" name="voto" value="4" id="star4">
                                 <label for="star4">★</label>
-                                <input type="radio" name="rating" value="3" id="star3">
+                                <input type="radio" name="voto" value="3" id="star3">
                                 <label for="star3">★</label>
-                                <input type="radio" name="rating" value="2" id="star2">
+                                <input type="radio" name="voto" value="2" id="star2">
                                 <label for="star2">★</label>
-                                <input type="radio" name="rating" value="1" id="star1">
+                                <input type="radio" name="voto" value="1" id="star1">
                                 <label for="star1">★</label>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="reviewText">Commento (facoltativo)</label>
-                            <textarea name="reviewText" id="reviewText" rows="5" 
+                            <label for="testo">Commento (facoltativo)</label>
+                            <textarea name="testo" id="reviewText" rows="5" 
                                       placeholder="Condividi la tua esperienza con questo prodotto..."
                                       maxlength="1000"></textarea>
                             <span class="char-count">0/1000</span>
@@ -229,6 +229,5 @@
 </main>
 
 <script src="${pageContext.request.contextPath}/js/product-detail.js"></script>
-<script src="${pageContext.request.contextPath}/js/home.js"></script>
 
 <%@ include file="/WEB-INF/jspf/footer.jsp" %>

@@ -1,8 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Recupera il totale carrello dal DOM
-    const cartTotal = parseFloat(document.getElementById('subtotal')?.textContent.replace('€', '').replace(',', '.').trim()) || 0;
-    const maxPoints = parseInt(document.querySelector('.points-available strong')?.textContent) || 0;
+    // --- Setup per la formattazione valuta (Italiano) ---
+    const currencyFormatter = new Intl.NumberFormat('it-IT', {
+        style: 'currency',
+        currency: 'EUR'
+    });
+
+    // Recupera il totale carrello dai DATA ATTRIBUTE
+    const subtotalElement = document.getElementById('subtotal');
+    // Se l'elemento non esiste (es. carrello vuoto o errore), default a 0
+    const cartTotal = subtotalElement ? parseFloat(subtotalElement.dataset.value) : 0;
+    
+    // Recupera punti massimi
+    const userPointsElement = document.getElementById('user-points-display');
+    const maxPoints = userPointsElement ? parseInt(userPointsElement.textContent) : 0;
     
     // --- Gestione Punti Fedeltà ---
     const puntiInput = document.getElementById('puntiDaUsare');
@@ -13,20 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalTotalElement = document.getElementById('finalTotal');
     
     function updateTotals() {
-        const puntiUsati = parseInt(puntiInput?.value) || 0;
-        const sconto = Math.min(puntiUsati, cartTotal); // Sconto max = totale carrello
+        if (!puntiInput) return;
+
+        const puntiUsati = parseInt(puntiInput.value) || 0;
+        
+        // Sconto non può superare il totale
+        const sconto = Math.min(puntiUsati, cartTotal); 
         const finalTotal = Math.max(cartTotal - sconto, 0);
         
-        // Aggiorna visualizzazione sconto
+        // Aggiorna visualizzazione sconto sotto l'input
         if (pointsDiscountText) {
-            pointsDiscountText.textContent = `Sconto: ${sconto.toFixed(2)}€`;
+            pointsDiscountText.textContent = `Sconto: ${currencyFormatter.format(sconto)}`;
         }
         
-        // Mostra/nascondi riga sconto nel riepilogo
+        // Mostra/nascondi riga sconto nel riepilogo a destra
         if (pointsDiscountRow && pointsDiscountAmount) {
             if (puntiUsati > 0) {
                 pointsDiscountRow.style.display = 'flex';
-                pointsDiscountAmount.textContent = `-${sconto.toFixed(2)}€`;
+                // Mostriamo il meno davanti per chiarezza
+                pointsDiscountAmount.textContent = `-${currencyFormatter.format(sconto)}`;
             } else {
                 pointsDiscountRow.style.display = 'none';
             }
@@ -34,21 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Aggiorna totale finale
         if (finalTotalElement) {
-            finalTotalElement.textContent = `${finalTotal.toFixed(2)}€`;
+            finalTotalElement.textContent = currencyFormatter.format(finalTotal);
         }
     }
     
-    // Event listener per input punti
+    // Event listener per input punti (digitazione manuale)
     if (puntiInput) {
         puntiInput.addEventListener('input', () => {
-            let value = parseInt(puntiInput.value) || 0;
+            let value = parseInt(puntiInput.value);
+            
+            if (isNaN(value)) value = 0;
             
             // Validazione
             if (value < 0) value = 0;
             if (value > maxPoints) value = maxPoints;
-            if (value > cartTotal) value = Math.floor(cartTotal); // Non può scontare più del totale
+            // Non permettiamo di usare più punti del valore in euro del carrello
+            if (value > cartTotal) value = Math.floor(cartTotal); 
             
-            puntiInput.value = value;
+            puntiInput.value = value; // Aggiorna l'input con il valore validato
             updateTotals();
         });
     }
@@ -56,30 +75,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Bottone "Usa tutti"
     if (useAllPointsBtn && puntiInput) {
         useAllPointsBtn.addEventListener('click', () => {
+            // Usa il massimo possibile: o tutti i punti, o il totale del carrello
             const maxUsablePoints = Math.min(maxPoints, Math.floor(cartTotal));
             puntiInput.value = maxUsablePoints;
             updateTotals();
         });
     }
     
-    // Inizializza totali al caricamento
+    // Inizializza totali al caricamento della pagina
     updateTotals();
     
-    // --- Validazione Form ---
+    // --- Validazione Form Checkout ---
     const checkoutForm = document.getElementById('checkoutForm');
     const confirmOrderBtn = document.getElementById('confirmOrderBtn');
     
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', (e) => {
-            // Verifica indirizzo selezionato
+            // 1. Verifica indirizzo selezionato
             const indirizzoSelected = checkoutForm.querySelector('input[name="indirizzoId"]:checked');
             if (!indirizzoSelected) {
                 e.preventDefault();
                 alert('Per favore, seleziona un indirizzo di spedizione.');
+                // Scroll per mostrare la sezione indirizzi
+                document.querySelector('.checkout-section').scrollIntoView({behavior: 'smooth'});
                 return false;
             }
             
-            // Verifica metodo pagamento selezionato
+            // 2. Verifica metodo pagamento selezionato
             const pagamentoSelected = checkoutForm.querySelector('input[name="pagamentoId"]:checked');
             if (!pagamentoSelected) {
                 e.preventDefault();
@@ -87,10 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             }
             
-            // Disabilita il bottone per evitare doppi invii
+            // 3. Disabilita il bottone per evitare doppi invii (double submit protection)
             if (confirmOrderBtn) {
                 confirmOrderBtn.disabled = true;
                 confirmOrderBtn.textContent = 'Elaborazione in corso...';
+                confirmOrderBtn.classList.add('processing'); // Utile per styling CSS
             }
             
             // Permetti l'invio del form
@@ -98,22 +121,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // --- Animazione selezione carte ---
+    // --- Animazione selezione card (Indirizzi e Pagamenti) ---
+    // Aggiunge un effetto visivo quando si seleziona un radio button
     const radioInputs = document.querySelectorAll('.address-card input[type="radio"], .payment-card input[type="radio"]');
     
     radioInputs.forEach(radio => {
         radio.addEventListener('change', function() {
-            // Rimuovi selezione visiva da tutti
+            // Trova il container genitore (lista indirizzi o pagamenti)
             const container = this.closest('.address-list, .payment-list');
+            
             if (container) {
+                // Rimuovi classe 'selected' da tutte le card nel gruppo
                 container.querySelectorAll('label').forEach(label => {
+                    label.classList.remove('selected-card');
                     label.style.transform = 'scale(1)';
+                    label.style.borderColor = '#ddd'; // Colore default
                 });
                 
-                // Aggiungi effetto alla card selezionata
+                // Aggiungi stile alla card selezionata
                 const selectedLabel = this.closest('label');
                 if (selectedLabel) {
+                    selectedLabel.classList.add('selected-card');
                     selectedLabel.style.transform = 'scale(1.02)';
+                    selectedLabel.style.borderColor = '#28a745'; // Verde PharmaWeb
+                    
+                    // Reset dell'animazione dopo un po'
                     setTimeout(() => {
                         selectedLabel.style.transform = 'scale(1)';
                     }, 200);
@@ -123,56 +155,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
 });
-
-// Funzioni globali per toggle form inline
-function toggleAddressForm() {
-    const form = document.getElementById('addAddressForm');
-    const overlay = document.getElementById('formOverlay');
-    const paymentForm = document.getElementById('addPaymentForm');
-    const isHidden = form.style.display === 'none' || form.style.display === '';
-    
-    if (isHidden) {
-        // Aggiorna il token CSRF prima di aprire il form
-        updateCsrfToken('addressForm');
-        form.style.display = 'block';
-        overlay.style.display = 'block';
-        paymentForm.style.display = 'none';
-    } else {
-        form.style.display = 'none';
-        overlay.style.display = 'none';
-        document.getElementById('addressForm').reset();
-    }
-}
-
-function togglePaymentForm() {
-    const form = document.getElementById('addPaymentForm');
-    const overlay = document.getElementById('formOverlay');
-    const addressForm = document.getElementById('addAddressForm');
-    const isHidden = form.style.display === 'none' || form.style.display === '';
-    
-    if (isHidden) {
-        // Aggiorna il token CSRF prima di aprire il form
-        updateCsrfToken('paymentForm');
-        form.style.display = 'block';
-        overlay.style.display = 'block';
-        addressForm.style.display = 'none';
-    } else {
-        form.style.display = 'none';
-        overlay.style.display = 'none';
-        document.getElementById('paymentForm').reset();
-    }
-}
-
-// Funzione per aggiornare il token CSRF
-function updateCsrfToken(formId) {
-    // Prendi il token più aggiornato dal form principale del checkout
-    const checkoutForm = document.getElementById('checkoutForm');
-    const currentToken = checkoutForm ? checkoutForm.querySelector('input[name="csrfToken"]').value : '';
-    
-    // Aggiorna il token nel form popup
-    const popupForm = document.getElementById(formId);
-    const tokenInput = popupForm.querySelector('input[name="csrfToken"]');
-    if (tokenInput && currentToken) {
-        tokenInput.value = currentToken;
-    }
-}
