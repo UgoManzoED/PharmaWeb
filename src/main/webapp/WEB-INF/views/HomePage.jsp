@@ -1,123 +1,45 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<!-- Importo la libreria JSTL Core per usare cicli e condizioni -->
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!-- Importo la libreria JSTL Formatting per formattare i numeri (prezzi) -->
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="my" tagdir="/WEB-INF/tags" %>
 
 <jsp:include page="/WEB-INF/jspf/header.jsp">
     <jsp:param name="pageTitle" value="PharmaWeb - Home" />
     <jsp:param name="pageCss" value="home.css" />
 </jsp:include>
 
-
-
 <main>
-
-    <!-- sezione categorie (per ora statica) -->
+    <!-- Sezione Categorie Dinamica -->
     <section class="categories-bar">
-        <div class="category">CATEGORIA 1</div>
-        <div class="category">CATEGORIA 2</div>
-        <div class="category">CATEGORIA 3</div>
-        <div class="category">CATEGORIA 4</div>
-        <div class="category">CATEGORIA 5</div>
-    </section>
-
-    <!-- sezione prodotti scontati -->
-    <section class="product-carousel">
-        <h2>Offerte Imperdibili</h2>
-        <div class="products-container">
-            <!--Ciclo for per i prodotti scontati-->
-            <c:forEach var="prodotto" items="${discountedProducts}">
-                <div class="product-card">
-                    <img class="product-image" src="${pageContext.request.contextPath}/${prodotto.urlImmagine}" alt="${prodotto.nomeProdotto}">
-                    <h3 class="product-name">${prodotto.nomeProdotto}</h3>
-                    <div class="product-price">
-                            <!-- controllo se c'è uno sconto -->
-                        <c:if test="${prodotto.scontoPercentuale > 0}">
-                                <span class="original-price">
-                                    <fmt:formatNumber value="${prodotto.prezzoDiListino}" type="currency" currencySymbol="€"/>
-                                </span>
-                            <span class="discounted-price">
-                                    <fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/>
-                                </span>
-                        </c:if>
-                        <c:if test="${prodotto.scontoPercentuale <= 0}">
-                                <span class="normal-price">
-                                    <fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/>
-                                </span>
-                        </c:if>
-                    </div>
-                    <button class="add-to-cart-button" data-product-id="${prodotto.idProdotto}">Aggiungi al carrello</button>
-                    <button class="add-to-wishlist-button" data-product-id="${prodotto.idProdotto}">❤️</button>
-                </div>
+        <!-- Controllo di sicurezza se la lista esiste -->
+        <c:if test="${not empty categories}">
+            <c:forEach var="cat" items="${categories}">
+                <%-- 
+                    Il link punta alla CatalogServlet passando l'ID della categoria.
+                    Es: /catalogo?cat=1 
+                --%>
+                <a href="${pageContext.request.contextPath}/catalogo?cat=${cat.idCategoria}" class="category">
+                    ${cat.nome}
+                </a>
             </c:forEach>
-        </div>
-        <!-- frecce per lo scorrimento -->
-        <div class="carousel-arrow prev">&lt;</div>
-        <div class="carousel-arrow next">&gt;</div>
+        </c:if>
     </section>
 
-    <!-- sezione nuovi prodotti -->
-    <section class="product-carousel">
-        <h2>Le nostre novità</h2>
-        <div class="products-container">
-            <c:forEach var="prodotto" items="${newProducts}">
-                <div class="product-card">
-                    <img class="product-image" src="${pageContext.request.contextPath}/${prodotto.urlImmagine}" alt="${prodotto.nomeProdotto}">
-                    <h3 class="product-name">${prodotto.nomeProdotto}</h3>
-                    <div class="product-price">
-                        <c:if test="${prodotto.scontoPercentuale > 0}">
-                            <span class="original-price"><fmt:formatNumber value="${prodotto.prezzoDiListino}" type="currency" currencySymbol="€"/></span>
-                            <span class="discounted-price"><fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/></span>
-                        </c:if>
-                        <c:if test="${prodotto.scontoPercentuale <= 0}">
-                            <span class="normal-price"><fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/></span>
-                        </c:if>
-                    </div>
-                    <button class="add-to-cart-button" data-product-id="${prodotto.idProdotto}">Aggiungi al carrello</button>
-                    <button class="add-to-wishlist-button" data-product-id="${prodotto.idProdotto}">❤️</button>
-                </div>
-            </c:forEach>
-        </div>
-        <div class="carousel-arrow prev">&lt;</div>
-        <div class="carousel-arrow next">&gt;</div>
-    </section>
+    <!-- 1. Offerte Imperdibili -->
+    <my:productCarousel title="Offerte Imperdibili" items="${discountedProducts}" />
 
-    <!-- Da aggiungere la sezione per i prodotti più venduti, copiando la struttura della sezione 'newProducts' e cambiando l'items in ${popularProducts} -->
+    <!-- 2. Le Nostre Novità -->
+    <my:productCarousel title="Le nostre novità" items="${newProducts}" />
 
-<!-- sezione prodotti più venduti -->
-<section class="product-carousel">
-    <h2>I nostri prodotti più venduti</h2>
-    <div class="products-container">
-        <c:forEach var="prodotto" items="${popularProducts}">
-            <div class="product-card">
-                <img class="product-image" src="${pageContext.request.contextPath}/${prodotto.urlImmagine}" alt="${prodotto.nomeProdotto}">
-                <h3 class="product-name">${prodotto.nomeProdotto}</h3>
-                <div class="product-price">
-                    <c:if test="${prodotto.scontoPercentuale > 0}">
-                        <span class="original-price"><fmt:formatNumber value="${prodotto.prezzoDiListino}" type="currency" currencySymbol="€"/></span>
-                        <span class="discounted-price"><fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/></span>
-                    </c:if>
-                    <c:if test="${prodotto.scontoPercentuale <= 0}">
-                        <span class="normal-price"><fmt:formatNumber value="${prodotto.prezzoFinale}" type="currency" currencySymbol="€"/></span>
-                    </c:if>
-                </div>
-                <button class="add-to-cart-button" data-product-id="${prodotto.idProdotto}">Aggiungi al carrello</button>
-                <button class="add-to-wishlist-button" data-product-id="${prodotto.idProdotto}">❤️</button>
-            </div>
-        </c:forEach>
-    </div>
-    <div class="carousel-arrow prev">&lt;</div>
-    <div class="carousel-arrow next">&gt;</div>
-</section>
+    <!-- 3. I Più Venduti -->
+    <my:productCarousel title="I nostri prodotti più venduti" items="${popularProducts}" />
+
 </main>
 
-<%--inclusione js homepage--%>
+<%-- Inclusione JS --%>
 <script src="${pageContext.request.contextPath}/js/home.js"></script>
 
-<%--inclusione footer--%>
-<%@ include file="/WEB-INF/jspf/footer.jsp" %>
-
+<%-- Inclusione Footer --%>
+<jsp:include page="/WEB-INF/jspf/footer.jsp" />
 
 </body>
 </html>

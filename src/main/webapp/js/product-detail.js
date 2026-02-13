@@ -4,115 +4,75 @@ document.addEventListener('DOMContentLoaded', () => {
     const addToCartBtn = document.querySelector('.add-to-cart-btn-large');
     const addToWishlistBtn = document.querySelector('.add-to-wishlist-btn-large');
     
-    // Aggiungi al carrello (usa la stessa logica di home.js)
-    if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', () => {
-            const productId = addToCartBtn.dataset.productId;
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            
-            if (!csrfToken) {
-                console.error('Token CSRF non trovato');
-                showToast('Errore di sicurezza. Ricarica la pagina.', true);
-                return;
-            }
-            
-            // Disabilita temporaneamente il bottone
-            addToCartBtn.disabled = true;
-            addToCartBtn.textContent = 'Aggiunta in corso...';
-            
-            fetch('cart', {
+    // Funzione generica per gestire le chiamate AJAX
+    async function handleAjaxAction(url, productId, btn) {
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = metaToken?.getAttribute('content');
+        
+        if (!csrfToken) {
+            console.error('Token CSRF non trovato');
+            showToast('Errore di sicurezza. Ricarica la pagina.', true);
+            return;
+        }
+        
+        // Stato di caricamento
+        const originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.textContent = 'In corso...';
+        
+        try {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: `action=add&productId=${productId}&csrfToken=${csrfToken}`
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('cart-count').textContent = data.cartItemCount;
-                    showToast(`'${data.addedProductName}' è stato aggiunto al carrello!`);
-                    
-                    // Ripristina il bottone
-                    addToCartBtn.disabled = false;
-                    addToCartBtn.innerHTML = '🛒 Aggiungi al carrello';
-                    
-                    if (data.csrfToken) {
-                        document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrfToken);
-                    }
-                } else {
-                    showToast(`Errore: ${data.error}`, true);
-                    addToCartBtn.disabled = false;
-                    addToCartBtn.innerHTML = '🛒 Aggiungi al carrello';
-                }
-            })
-            .catch(error => {
-                console.error('Errore nella chiamata AJAX:', error);
-                showToast('Errore di connessione. Riprova.', true);
-                addToCartBtn.disabled = false;
-                addToCartBtn.innerHTML = '🛒 Aggiungi al carrello';
+                body: `action=add&productId=${productId}&csrfToken=${encodeURIComponent(csrfToken)}`
             });
+
+            const data = await response.json();
+
+            // Rotazione del Token CSRF
+            if (data.csrfToken) {
+                metaToken.setAttribute('content', data.csrfToken);
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || `Errore: ${response.status}`);
+            }
+
+            if (data.success) {
+                // Aggiornamento contatori header
+                if (url === 'cart') {
+                    document.getElementById('cart-count').textContent = data.cartItemCount;
+                } else if (url === 'wishlist') {
+                    document.getElementById('wishlist-count').textContent = data.wishlistItemCount;
+                }
+                showToast(data.addedProductName ? `'${data.addedProductName}' aggiunto!` : 'Operazione completata!');
+            } else {
+                throw new Error(data.error || "Operazione fallita");
+            }
+        } catch (error) {
+            console.error('Errore AJAX:', error);
+            showToast(error.message, true);
+        } finally {
+            // Ripristino bottone
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+        }
+    }
+
+    // Listener Aggiungi al carrello
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', () => {
+            handleAjaxAction('cart', addToCartBtn.dataset.productId, addToCartBtn);
         });
     }
     
-    // Aggiungi alla wishlist
+    // Listener Aggiungi alla wishlist
     if (addToWishlistBtn) {
         addToWishlistBtn.addEventListener('click', () => {
-            const productId = addToWishlistBtn.dataset.productId;
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            
-            if (!csrfToken) {
-                console.error('Token CSRF non trovato');
-                showToast('Errore di sicurezza. Ricarica la pagina.', true);
-                return;
-            }
-            
-            addToWishlistBtn.disabled = true;
-            addToWishlistBtn.textContent = 'Aggiunta in corso...';
-            
-            fetch('wishlist', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: `action=add&productId=${productId}&csrfToken=${csrfToken}`
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if(data.success) {
-                    document.getElementById('wishlist-count').textContent = data.wishlistItemCount;
-                    showToast(`'${data.addedProductName}' è stato aggiunto alla wishlist!`);
-                    
-                    addToWishlistBtn.disabled = false;
-                    addToWishlistBtn.innerHTML = '❤️ Aggiungi ai preferiti';
-                    
-                    if (data.csrfToken) {
-                        document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.csrfToken);
-                    }
-                } else {
-                    showToast(`Errore: ${data.error}`, true);
-                    addToWishlistBtn.disabled = false;
-                    addToWishlistBtn.innerHTML = '❤️ Aggiungi ai preferiti';
-                }
-            })
-            .catch(error => {
-                console.error('Errore AJAX wishlist:', error);
-                showToast('Errore di connessione. Riprova.', true);
-                addToWishlistBtn.disabled = false;
-                addToWishlistBtn.innerHTML = '❤️ Aggiungi ai preferiti';
-            });
+            handleAjaxAction('wishlist', addToWishlistBtn.dataset.productId, addToWishlistBtn);
         });
     }
     
@@ -125,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const length = reviewTextarea.value.length;
             charCount.textContent = `${length}/1000`;
             
+            // Feedback visivo quando ci si avvicina al limite
             if (length > 900) {
                 charCount.style.color = '#dc3545';
             } else {
@@ -138,32 +99,32 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (reviewForm) {
         reviewForm.addEventListener('submit', (e) => {
-            const ratingInputs = reviewForm.querySelectorAll('input[name="rating"]');
-            let hasRating = false;
+            // Verifica che sia stato selezionato un voto (rating)
+            const ratingSelected = reviewForm.querySelector('input[name="voto"]:checked');
             
-            ratingInputs.forEach(input => {
-                if (input.checked) {
-                    hasRating = true;
-                }
-            });
-            
-            if (!hasRating) {
+            if (!ratingSelected) {
                 e.preventDefault();
-                showToast('Per favore, seleziona una valutazione da 1 a 5 stelle.', true);
+                showToast('Per favore, seleziona una valutazione (stelle).', true);
             }
         });
     }
     
 });
 
-// Funzione helper per mostrare notifiche toast
+/**
+ * Mostra notifiche temporanee all'utente
+ */
 function showToast(message, isError = false) {
     const toast = document.createElement('div');
     toast.className = `toast ${isError ? 'error' : ''}`;
     toast.textContent = message;
     document.body.appendChild(toast);
     
+    // Animazione di entrata (necessita di CSS)
+    setTimeout(() => toast.classList.add('show'), 10);
+
     setTimeout(() => {
-        toast.remove();
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
     }, 3000);
 }

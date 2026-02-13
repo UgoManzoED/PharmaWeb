@@ -11,6 +11,14 @@
     <div class="wishlist-container">
         <h1>La mia lista desideri</h1>
         
+        <%-- GESTIONE ERRORI: Mostra messaggi provenienti dal backend (es. prodotto esaurito durante spostamento) --%>
+        <c:if test="${not empty sessionScope.wishlistError}">
+            <div class="alert-error" style="background-color: #ffebee; color: #c62828; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #ef9a9a;">
+                <c:out value="${sessionScope.wishlistError}" />
+            </div>
+            <c:remove var="wishlistError" scope="session"/>
+        </c:if>
+
         <%-- Se ci sono prodotti nella wishlist mostra il contenuto, altrimenti mostra messaggio --%>
         <c:choose>
             <c:when test="${not empty sessionScope.wishlist and not empty sessionScope.wishlist.items}">
@@ -46,8 +54,10 @@
                             <div class="wishlist-item">
                                 <div class="product-image-wrapper">
                                     <img src="${pageContext.request.contextPath}/${prodotto.urlImmagine}" 
-                                         alt="${prodotto.nomeProdotto}" 
-                                         class="wishlist-product-image">
+                                         alt="<c:out value='${prodotto.nomeProdotto}'/>" 
+                                         class="wishlist-product-image"
+                                         onerror="this.src='${pageContext.request.contextPath}/img/placeholder.jpg'">
+                                    
                                     <%-- Mostra badge sconto se presente --%>
                                     <c:if test="${prodotto.scontoPercentuale > 0}">
                                         <span class="discount-badge">-${prodotto.scontoPercentuale}%</span>
@@ -55,30 +65,33 @@
                                 </div>
                                 
                                 <div class="product-info">
-                                    <h3 class="product-name">${prodotto.nomeProdotto}</h3>
-                                    <p class="product-description">${prodotto.descrizione}</p>
+                                    <%-- XSS Prevention --%>
+                                    <h3 class="product-name"><c:out value="${prodotto.nomeProdotto}"/></h3>
+                                    <p class="product-description"><c:out value="${prodotto.descrizione}"/></p>
                                     
                                     <%-- Mostra prezzo, se c'è sconto mostra anche prezzo originale --%>
                                     <div class="product-price">
-                                        <c:if test="${prodotto.scontoPercentuale > 0}">
-                                            <span class="original-price">
-                                                <fmt:formatNumber value="${prodotto.prezzoDiListino}" 
-                                                                    type="currency" 
-                                                                    currencySymbol="€"/>
-                                            </span>
-                                            <span class="discounted-price">
-                                                <fmt:formatNumber value="${prodotto.prezzoFinale}" 
-                                                                    type="currency" 
-                                                                    currencySymbol="€"/>
-                                            </span>
-                                        </c:if>
-                                        <c:if test="${prodotto.scontoPercentuale <= 0}">
-                                            <span class="normal-price">
-                                                <fmt:formatNumber value="${prodotto.prezzoFinale}" 
-                                                                    type="currency" 
-                                                                    currencySymbol="€"/>
-                                            </span>
-                                        </c:if>
+                                        <c:choose>
+                                            <c:when test="${prodotto.scontoPercentuale > 0}">
+                                                <span class="original-price">
+                                                    <fmt:formatNumber value="${prodotto.prezzoDiListino}" 
+                                                                        type="currency" 
+                                                                        currencySymbol="€"/>
+                                                </span>
+                                                <span class="discounted-price">
+                                                    <fmt:formatNumber value="${prodotto.prezzoFinale}" 
+                                                                        type="currency" 
+                                                                        currencySymbol="€"/>
+                                                </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="normal-price">
+                                                    <fmt:formatNumber value="${prodotto.prezzoFinale}" 
+                                                                        type="currency" 
+                                                                        currencySymbol="€"/>
+                                                </span>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                     
                                     <%-- Mostra se il prodotto è disponibile o meno --%>
@@ -118,6 +131,7 @@
                     </div>
                     
                     <div class="wishlist-info">
+                        <%-- Usiamo .size che JSTL mappa automaticamente sul metodo getSize() del bean --%>
                         <p><strong>${sessionScope.wishlist.size} prodotto/i</strong> nella tua lista desideri</p>
                     </div>
                 </div>
@@ -127,8 +141,8 @@
                 <div class="empty-wishlist">
                     <div class="empty-wishlist-icon">❤️</div>
                     <h2>La tua lista desideri è vuota</h2>
-                    <p>Aggiungi i tuoi prodotti preferiti </p>
-                    <a href="${pageContext.request.contextPath}/HomePage" class="continue-shopping-btn">
+                    <p>Inizia ad aggiungere i tuoi prodotti preferiti dal catalogo!</p>
+                    <a href="${pageContext.request.contextPath}/" class="continue-shopping-btn">
                         Continua lo shopping
                     </a>
                 </div>
@@ -136,7 +150,6 @@
         </c:choose>
     </div>
 </main>
-
 
 <script src="${pageContext.request.contextPath}/js/wishlist.js"></script>
 

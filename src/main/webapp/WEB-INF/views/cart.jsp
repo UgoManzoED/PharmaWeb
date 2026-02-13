@@ -12,6 +12,15 @@
     <div class="cart-container">
         <h1>Il mio carrello</h1>
 
+        <%-- GESTIONE ERRORI: Mostra messaggio se la quantità richiesta non è disponibile --%>
+        <c:if test="${not empty sessionScope.cartError}">
+            <div class="alert-error" style="background-color: #ffebee; color: #c62828; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #ef9a9a;">
+                ${sessionScope.cartError}
+            </div>
+            <%-- Rimuovi l'errore dalla sessione per non mostrarlo di nuovo al refresh --%>
+            <c:remove var="cartError" scope="session"/>
+        </c:if>
+
         <%-- Se ci sono articoli nel carrello mostra la tabella, altrimenti mostra messaggio carrello vuoto --%>
         <c:choose>
             <c:when test="${not empty sessionScope.cart and not empty sessionScope.cart.items}">
@@ -72,8 +81,10 @@
                                                     class="quantity-btn increase-btn"
                                                     onclick="updateQty('${item.product.idProdotto}', 1, '${item.product.quantitaDisponibile}')"
                                                 >+</button>
-                                            <%-- Quantità disponibile a magazzino --%>
-                                            <span class="available-quantity">Disponibili: ${item.product.quantitaDisponibile}</span>
+                                                
+                                                <%-- Quantità disponibile a magazzino --%>
+                                                <span class="available-quantity">Disponibili: ${item.product.quantitaDisponibile}</span>
+                                            </form>
                                         </td>
                                         <td class="price-cell">
                                             <%-- Prezzo unitario del prodotto --%>
@@ -154,7 +165,7 @@
                     <div class="empty-cart-icon">🛒</div>
                     <h2>Il tuo carrello è vuoto</h2>
                     <p>Inizia ad aggiungere prodotti dal nostro catalogo!</p>
-                    <a href="${pageContext.request.contextPath}/HomePage" class="continue-shopping-btn">
+                    <a href="${pageContext.request.contextPath}/" class="continue-shopping-btn">
                         Continua lo shopping
                     </a>
                 </div>
@@ -163,8 +174,6 @@
     </div>
 </main>
 
-
 <script src="${pageContext.request.contextPath}/js/cart.js"></script>
-
 
 <%@ include file="/WEB-INF/jspf/footer.jsp" %>
