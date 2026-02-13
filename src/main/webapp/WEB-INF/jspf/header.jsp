@@ -15,6 +15,9 @@
         <c:out value="${not empty param.pageTitle ? param.pageTitle : 'PharmaWeb - La tua farmacia online'}" />
     </title>
     
+    <%-- Font Awesome per le Icone --%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <%-- CSS Principale --%>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/main.css">
     
@@ -29,51 +32,54 @@
     <div class="logo-container">
         <a href="${pageContext.request.contextPath}/">
             <%-- In Futuro Logo --%>
+            <i class="fas fa-mortar-pestle"></i>
             <span class="logo-text">PharmaWeb</span>
         </a>
     </div>
 
     <div class="search-container">
         <form action="${pageContext.request.contextPath}/catalogo" method="get" class="search-form">
-            <%-- value con c:out per sicurezza --%>
-            <input type="text" name="q" placeholder="Cerca prodotti..." 
+            <input type="text" name="q" placeholder="Cerca farmaci, integratori..." 
                    value="<c:out value='${param.q}'/>" required>
-            <button type="submit" class="search-button">🔍</button>
+            <button type="submit" class="search-button">
+                <i class="fas fa-search"></i>
+            </button>
         </form>
     </div>
 
     <div class="actions-container">
-        <%-- Logica Autenticazione --%>
         <c:choose>
             <c:when test="${not empty sessionScope.utente}">
-                <div class="user-info">
-                    <span>Benvenuto, <strong><c:out value="${sessionScope.utente.nome}"/></strong>!</span>
-                    <a href="${pageContext.request.contextPath}/logout" class="login-button">LOGOUT</a>
-                    <%-- Link Dashboard --%>
-                    <a href="${pageContext.request.contextPath}/area-riservata/dashboard" class="user-link">Area Personale</a>
+                <div class="user-menu">
+                    <span class="welcome-msg">Ciao, <strong><c:out value="${sessionScope.utente.nome}"/></strong></span>
+                    <div class="user-links">
+                        <a href="${pageContext.request.contextPath}/area-riservata/dashboard">Il mio account</a>
+                        <a href="${pageContext.request.contextPath}/logout" class="logout-link">Esci</a>
+                    </div>
                 </div>
             </c:when>
             <c:otherwise>
-                <a href="${pageContext.request.contextPath}/login" class="login-button">LOGIN ACCOUNT</a>
+                <a href="${pageContext.request.contextPath}/login" class="login-button">
+                    <i class="fas fa-user"></i> Accedi
+                </a>
             </c:otherwise>
         </c:choose>
 
-        <%-- Icone Wishlist e Carrello con contatori dinamici --%>
         <div class="nav-icons">
-            <a href="${pageContext.request.contextPath}/wishlist" class="icon-link" title="La mia Wishlist">
-                <div class="icon-placeholder wishlist">
-                    <span class="icon-counter" id="wishlist-count">
-                        ${not empty sessionScope.wishlist ? fn:length(sessionScope.wishlist.items) : 0}
-                    </span>
-                </div>
+            <%-- Wishlist --%>
+            <a href="${pageContext.request.contextPath}/wishlist" class="icon-link" title="Wishlist">
+                <i class="far fa-heart"></i>
+                <span class="icon-counter" id="wishlist-count">
+                    ${not empty sessionScope.wishlist ? fn:length(sessionScope.wishlist.items) : 0}
+                </span>
             </a>
             
-            <a href="${pageContext.request.contextPath}/cart" class="icon-link" title="Il mio Carrello">
-                <div class="icon-placeholder cart">
-                    <span class="icon-counter" id="cart-count">
-                        ${not empty sessionScope.cart ? fn:length(sessionScope.cart.items) : 0}
-                    </span>
-                </div>
+            <%-- Carrello --%>
+            <a href="${pageContext.request.contextPath}/cart" class="icon-link" title="Carrello">
+                <i class="fas fa-shopping-basket"></i>
+                <span class="icon-counter" id="cart-count">
+                    ${not empty sessionScope.cart ? fn:length(sessionScope.cart.items) : 0}
+                </span>
             </a>
         </div>
     </div>

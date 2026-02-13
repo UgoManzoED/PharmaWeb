@@ -1,8 +1,10 @@
-/* Stili per le pagine di errore (404, 403, 500) */
+/* ============================================================
+   STILI PER LE PAGINE DI ERRORE (404, 403, 500)
+   ============================================================ */
 
 .error-page {
     min-height: 80vh;
-    background: linear-gradient(135deg, #f0f2f5 0%, #e8eaf0 100%);
+    background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -15,17 +17,19 @@
 }
 
 .error-content {
-    background-color: white;
+    background-color: var(--white);
     padding: 50px 40px;
     border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow);
     text-align: center;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 /* Icona errore */
 .error-icon {
     font-size: 5em;
     margin-bottom: 20px;
+    display: inline-block;
     animation: bounce 2s infinite;
 }
 
@@ -34,7 +38,7 @@
         transform: translateY(0);
     }
     50% {
-        transform: translateY(-10px);
+        transform: translateY(-15px);
     }
 }
 
@@ -42,23 +46,23 @@
 .error-code {
     font-size: 6em;
     font-weight: 900;
-    color: #dc3545;
+    color: var(--error-red);
     margin: 0;
     line-height: 1;
-    text-shadow: 3px 3px 0px rgba(220, 53, 69, 0.2);
+    text-shadow: 4px 4px 0px rgba(220, 53, 69, 0.1);
 }
 
 /* Titolo errore */
 .error-title {
     font-size: 2em;
-    color: #333;
+    color: var(--primary-blue);
     margin: 20px 0 15px 0;
     font-weight: 700;
 }
 
 /* Messaggio errore */
 .error-message {
-    font-size: 1.2em;
+    font-size: 1.15em;
     color: #666;
     line-height: 1.6;
     margin-bottom: 35px;
@@ -75,54 +79,54 @@
 
 .btn-primary,
 .btn-secondary {
-    padding: 15px 35px;
+    padding: 14px 30px;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1em;
+    border-radius: var(--border-radius);
+    font-size: 1.05em;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
     display: inline-block;
 }
 
 .btn-primary {
-    background-color: #28a745;
-    color: white;
+    background-color: var(--secondary-green);
+    color: var(--white);
 }
 
 .btn-primary:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    background-color: #388e3c;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
 }
 
 .btn-secondary {
     background-color: #6c757d;
-    color: white;
+    color: var(--white);
 }
 
 .btn-secondary:hover {
     background-color: #5a6268;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(108, 117, 125, 0.3);
 }
 
 /* Sezione aiuto */
 .error-help {
     padding-top: 30px;
-    border-top: 2px solid #e0e0e0;
+    border-top: 2px solid #f0f0f0;
 }
 
 .error-help p {
-    color: #666;
+    color: #777;
     font-size: 1em;
     margin-bottom: 15px;
 }
 
 .error-tip {
     font-style: italic;
-    color: #888;
+    color: #999;
     font-size: 0.95em;
 }
 
@@ -132,128 +136,95 @@
     margin: 20px 0 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 10px;
     justify-content: center;
 }
 
-.help-links li {
-    display: inline;
-}
-
 .help-links a {
-    color: #28a745;
+    color: var(--primary-blue);
     text-decoration: none;
-    font-weight: 500;
-    padding: 8px 15px;
-    border-radius: 5px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #f1f5f9;
     transition: all 0.2s;
-    display: inline-block;
+    font-size: 0.9em;
 }
 
 .help-links a:hover {
-    background-color: #e8f5e9;
-    text-decoration: underline;
+    background-color: var(--primary-blue);
+    color: var(--white);
 }
 
-/* Debug info (solo per 500) */
+/* Debug info */
 .error-debug {
     margin-top: 30px;
     text-align: left;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px;
+    background-color: #fafafa;
+    border: 1px solid #eee;
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 
 .error-debug summary {
     cursor: pointer;
     font-weight: 600;
-    color: #495057;
-    padding: 10px;
+    color: var(--primary-blue);
+    padding: 12px 15px;
+    background-color: #f8f9fa;
     user-select: none;
+    transition: background 0.2s;
 }
 
 .error-debug summary:hover {
-    background-color: #e9ecef;
-    border-radius: 5px;
+    background-color: #edf2f7;
 }
 
 .debug-info {
-    padding: 15px;
-    font-family: monospace;
-    font-size: 0.9em;
-    color: #495057;
-    background-color: white;
-    border-radius: 5px;
-    margin-top: 10px;
+    padding: 20px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.85em;
+    color: #4a5568;
+    background-color: var(--white);
+    line-height: 1.5;
 }
 
 .debug-info p {
     margin: 8px 0;
-    word-break: break-word;
+    word-break: break-all;
+    border-left: 3px solid var(--error-red);
+    padding-left: 10px;
 }
 
 .debug-info strong {
-    color: #dc3545;
+    color: var(--error-red);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .error-content {
-        padding: 40px 25px;
+        padding: 35px 20px;
     }
     
-    .error-code {
-        font-size: 4em;
-    }
+    .error-code { font-size: 4em; }
+    .error-title { font-size: 1.6em; }
+    .error-actions { flex-direction: column; }
     
-    .error-title {
-        font-size: 1.5em;
-    }
-    
-    .error-message {
-        font-size: 1em;
-    }
-    
-    .error-actions {
-        flex-direction: column;
-    }
-    
-    .btn-primary,
-    .btn-secondary {
+    .btn-primary, .btn-secondary {
         width: 100%;
-        padding: 12px 25px;
-    }
-    
-    .help-links {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .help-links a {
-        display: block;
+        text-align: center;
     }
 }
 
-@media (max-width: 480px) {
-    .error-icon {
-        font-size: 3.5em;
-    }
-    
-    .error-code {
-        font-size: 3em;
-    }
-}
-
-/* Animazioni */
+/* Animazione ingresso pagina */
 .error-content {
-    animation: fadeInUp 0.6s ease-out;
+    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(40px);
     }
     to {
         opacity: 1;
