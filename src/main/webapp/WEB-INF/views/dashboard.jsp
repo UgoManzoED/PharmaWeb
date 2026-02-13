@@ -51,7 +51,7 @@
                                         <p>Spedito a: <em>${ordine.indirizzoSpedizione}</em></p>
                                         <div class="order-footer">
                                             <strong>Totale: <fmt:formatNumber value="${ordine.importoTotale}" type="currency" currencySymbol="€"/></strong>
-                                            <a href="ordine-confermato?id=${ordine.idOrdine}" class="btn-outline-sm">Dettagli</a>
+                                            <a href="${pageContext.request.contextPath}/ordine-confermato?id=${ordine.idOrdine}" class="btn-outline-sm">Dettagli</a>
                                         </div>
                                     </div>
                                 </div>

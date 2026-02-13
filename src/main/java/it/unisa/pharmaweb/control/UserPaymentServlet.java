@@ -63,6 +63,6 @@ public class UserPaymentServlet extends HttpServlet {
             }
         }
 
-        response.sendRedirect(request.getContextPath() + "/area-riservata/checkout");
+        response.sendRedirect(request.getContextPath() + "/area-riservata/dashboard");
     }
 }

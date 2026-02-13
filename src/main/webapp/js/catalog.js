@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'name-desc':
                         return nameB.localeCompare(nameA);
                     default:
-                        return 0;
+                        return parseInt(a.dataset.id) - parseInt(b.dataset.id);
                 }
             });
             
