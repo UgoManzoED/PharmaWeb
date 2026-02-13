@@ -11,22 +11,29 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Ordina i prodotti in base alla selezione
             products.sort((a, b) => {
+                const priceA = parseFloat(a.dataset.price) || 0;
+                const priceB = parseFloat(b.dataset.price) || 0;
+                const nameA = a.dataset.name || "";
+                const nameB = b.dataset.name || "";
+
                 switch(sortValue) {
                     case 'price-asc':
-                        return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                        return priceA - priceB;
                     case 'price-desc':
-                        return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                        return priceB - priceA;
                     case 'name-asc':
-                        return a.dataset.name.localeCompare(b.dataset.name);
+                        return nameA.localeCompare(nameB);
                     case 'name-desc':
-                        return b.dataset.name.localeCompare(a.dataset.name);
+                        return nameB.localeCompare(nameA);
                     default:
                         return 0;
                 }
             });
             
-            // Riordina il DOM
-            products.forEach(product => productsGrid.appendChild(product));
+            // Riordina il DOM utilizzando un DocumentFragment per ottimizzare le performance
+            const fragment = document.createDocumentFragment();
+            products.forEach(product => fragment.appendChild(product));
+            productsGrid.appendChild(fragment);
         });
     }
     
@@ -43,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Filtro sconto
             if (filterDiscount && filterDiscount.checked) {
-                const discount = parseInt(product.dataset.discount);
+                const discount = parseInt(product.dataset.discount) || 0;
                 if (discount <= 0) {
                     show = false;
                 }
@@ -51,13 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Filtro disponibilità
             if (filterAvailable && filterAvailable.checked) {
-                const available = parseInt(product.dataset.available);
+                const available = parseInt(product.dataset.available) || 0;
                 if (available <= 0) {
                     show = false;
                 }
             }
             
-            // Mostra/nascondi prodotto
+            // Mostra/nascondi prodotto tramite classi CSS
             if (show) {
                 product.classList.remove('hidden');
                 product.classList.add('show');
@@ -76,20 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Aggiungi event listeners ai filtri
-    if (filterDiscount) {
-        filterDiscount.addEventListener('change', applyFilters);
-    }
-    
-    if (filterAvailable) {
-        filterAvailable.addEventListener('change', applyFilters);
-    }
+    if (filterDiscount) filterDiscount.addEventListener('change', applyFilters);
+    if (filterAvailable) filterAvailable.addEventListener('change', applyFilters);
     
     // --- Smooth scroll per categorie ---
     const categoryLinks = document.querySelectorAll('.category-link');
     categoryLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            // Permettiamo la navigazione normale
-            // ma aggiungiamo un piccolo feedback visivo
+        link.addEventListener('click', () => {
+            // Feedback visivo rapido al click
             link.style.transform = 'scale(0.98)';
             setTimeout(() => {
                 link.style.transform = 'scale(1)';

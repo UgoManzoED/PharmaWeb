@@ -34,37 +34,19 @@
                                 Tutti i Prodotti
                             </a>
                         </li>
-                        <!-- Placeholder per categorie - da popolare dinamicamente -->
-                        <li>
-                            <a href="${pageContext.request.contextPath}/catalogo?cat=1" 
-                               class="category-link ${param.cat == '1' ? 'active' : ''}">
-                                Farmaci da Banco
-                            </a>
-                        </li>
-                        <li>
-                            <a href="${pageContext.request.contextPath}/catalogo?cat=2" 
-                               class="category-link ${param.cat == '2' ? 'active' : ''}">
-                                Integratori
-                            </a>
-                        </li>
-                        <li>
-                            <a href="${pageContext.request.contextPath}/catalogo?cat=3" 
-                               class="category-link ${param.cat == '3' ? 'active' : ''}">
-                                Cosmesi
-                            </a>
-                        </li>
-                        <li>
-                            <a href="${pageContext.request.contextPath}/catalogo?cat=4" 
-                               class="category-link ${param.cat == '4' ? 'active' : ''}">
-                                Igiene Personale
-                            </a>
-                        </li>
-                        <li>
-                            <a href="${pageContext.request.contextPath}/catalogo?cat=5" 
-                               class="category-link ${param.cat == '5' ? 'active' : ''}">
-                                Dispositivi Medici
-                            </a>
-                        </li>
+                        
+                        <%-- Categorie Dinamiche dal Database --%>
+                        <c:if test="${not empty categories}">
+                            <c:forEach var="cat" items="${categories}">
+                                <li>
+                                    <a href="${pageContext.request.contextPath}/catalogo?cat=${cat.idCategoria}" 
+                                       class="category-link ${param.cat == cat.idCategoria ? 'active' : ''}">
+                                        ${cat.nome}
+                                    </a>
+                                </li>
+                            </c:forEach>
+                        </c:if>
+                        
                     </ul>
                 </div>
 
@@ -173,7 +155,8 @@
                                     <div class="product-actions">
                                         <c:choose>
                                             <c:when test="${prodotto.quantitaDisponibile > 0}">
-                                                <button class="add-to-cart-button" data-product-id="${prodotto.idProdotto}">
+                                                <%-- Aggiunto tipo="button" per evitare submit involontari e onclick per la logica carrello --%>
+                                                <button type="button" class="add-to-cart-button" data-product-id="${prodotto.idProdotto}">
                                                     Aggiungi al carrello
                                                 </button>
                                             </c:when>
@@ -209,6 +192,5 @@
 </main>
 
 <script src="${pageContext.request.contextPath}/js/catalog.js"></script>
-<script src="${pageContext.request.contextPath}/js/home.js"></script>
 
 <%@ include file="/WEB-INF/jspf/footer.jsp" %>
