@@ -2,6 +2,8 @@ package it.unisa.pharmaweb.control;
 
 import it.unisa.pharmaweb.model.bean.ProductBean;
 import it.unisa.pharmaweb.model.dao.ProductDAO;
+import it.unisa.pharmaweb.model.bean.CategoriaBean;
+import it.unisa.pharmaweb.model.dao.CategoriaDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.RequestDispatcher;
@@ -24,14 +26,20 @@ public class HomePageServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ProductDAO productDAO = new ProductDAO();
+        CategoriaDAO categoriaDAO = new CategoriaDAO();
         
+        // Recupero Prodotti
         List<ProductBean> newProducts = productDAO.getNewProducts(8);
         List<ProductBean> popularProducts = productDAO.getPopularProducts(8);
         List<ProductBean> discountedProducts = productDAO.getDiscountedProducts(8);
         
+        // Recupero Categorie
+        List<CategoriaBean> categories = categoriaDAO.doRetrieveAll();
+        
         request.setAttribute("newProducts", newProducts);
         request.setAttribute("popularProducts", popularProducts);
         request.setAttribute("discountedProducts", discountedProducts);
+        request.setAttribute("categories", categories);
         
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/HomePage.jsp");
         dispatcher.forward(request, response);
