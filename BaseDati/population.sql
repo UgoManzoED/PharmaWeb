@@ -16,7 +16,7 @@ INSERT INTO Categoria (Nome) VALUES
 
 -- --- 2. POPOLAMENTO UTENTI ---
 -- Password hashata con BCrypt per "Password123!"
-SET @pass = '$2a$12$R9h/lSuEbvTZzeTuQyia7e.8vK6uS5TjFv.m.U9xH/BvSxq8j/v0S';
+SET @pass = '$2a$12$fY2A5QoA8DGn8ep0EOP/UuxGZOqBw0e3tQxQjqGQHNXmONIOnJ6r6';
 
 INSERT INTO Utente (Email, Password, Nome, Cognome, Ruolo, PuntiFedelta) VALUES
 ('admin@pharmaweb.it', @pass, 'Admin', 'Pharma', 'admin', 0),                                 -- ID 1
