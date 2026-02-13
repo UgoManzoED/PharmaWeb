@@ -29,15 +29,21 @@ public class AdminProductServlet extends HttpServlet {
     private static final String UPLOAD_DIR = "img";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Visualizza la lista dei prodotti per la gestione
         ProductDAO productDAO = new ProductDAO();
-        List<ProductBean> products = productDAO.getProductsPaginated(0, 100);
-        request.setAttribute("products", products);
-        
-        // Invia anche la lista delle categorie per il form di aggiunta
         CategoriaDAO categoriaDAO = new CategoriaDAO();
-        List<CategoriaBean> categorie = categoriaDAO.doRetrieveAll();
-        request.setAttribute("categorie", categorie);
+        
+        String action = request.getParameter("action");
+
+        // Caso MODIFICA Carichiamo il prodotto singolo per popolare il form
+        if ("edit".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            ProductBean p = productDAO.getProductById(id);
+            request.setAttribute("productToEdit", p);
+        }
+
+        // Carichiamo sempre categorie e lista prodotti
+        request.setAttribute("products", productDAO.getProductsPaginated(0, 100));
+        request.setAttribute("categories", categoriaDAO.doRetrieveAll());
 
         request.getRequestDispatcher("/WEB-INF/views/admin/prodotti.jsp").forward(request, response);
     }

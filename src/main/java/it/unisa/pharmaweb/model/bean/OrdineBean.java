@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * La classe OrdineBean è un JavaBean che rappresenta un ordine effettuato da un utente.
+ * Contiene i dati della testata dell'ordine e una lista delle sue righe.
+ */
 public class OrdineBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private int idOrdine;
     private int idUtente;
+    private String emailCliente;
     private Date dataOrdine;
     private double importoTotale;
     private String indirizzoSpedizione;
@@ -18,15 +23,18 @@ public class OrdineBean implements Serializable {
     private int puntiUtilizzati;
     private List<RigaOrdineBean> righe;
     
+    // Costruttore vuoto
     public OrdineBean() {
     	
     }
     
-	public OrdineBean(int idOrdine, int idUtente, Date dataOrdine, double importoTotale, String indirizzoSpedizione,
+    // Costruttore completo
+	public OrdineBean(int idOrdine, int idUtente, String emailCliente, Date dataOrdine, double importoTotale, String indirizzoSpedizione,
 			String metodoPagamentoUtilizzato, String stato, int puntiGuadagnati, int puntiUtilizzati,
 			List<RigaOrdineBean> righe) {
 		this.idOrdine = idOrdine;
 		this.idUtente = idUtente;
+		this.emailCliente = emailCliente;
 		this.dataOrdine = dataOrdine;
 		this.importoTotale = importoTotale;
 		this.indirizzoSpedizione = indirizzoSpedizione;
@@ -51,6 +59,14 @@ public class OrdineBean implements Serializable {
 
 	public void setIdUtente(int idUtente) {
 		this.idUtente = idUtente;
+	}
+
+	public String getEmailCliente() {
+		return emailCliente;
+	}
+
+	public void setEmailCliente(String emailCliente) {
+		this.emailCliente = emailCliente;
 	}
 
 	public Date getDataOrdine() {
