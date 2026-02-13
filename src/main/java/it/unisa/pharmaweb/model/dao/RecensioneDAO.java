@@ -55,6 +55,7 @@ public class RecensioneDAO {
                 bean.setIdUtente(rs.getInt("ID_Utente"));
                 bean.setIdProdotto(rs.getInt("ID_Prodotto"));
                 bean.setNomeUtente(rs.getString("NomeUtenteVisibile"));
+                bean.setNomeProdotto(rs.getString("NomeProdotto"));
 
                 recensioni.add(bean);
             }
@@ -93,5 +94,38 @@ public class RecensioneDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    /**
+     * Recupera le ultime N recensioni scritte sul sito.
+     * @param limit il numero di recensioni da recuperare.
+     * @return una lista di RecensioneBean.
+     */
+    public List<RecensioneBean> getLatestReviews(int limit) {
+        List<RecensioneBean> recensioni = new ArrayList<>();
+        String sql = "SELECT * FROM VistaRecensioniComplete ORDER BY DataRecensione DESC LIMIT ?";
+
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, limit);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                RecensioneBean bean = new RecensioneBean();
+                bean.setIdRecensione(rs.getInt("ID_Recensione"));
+                bean.setVoto(rs.getInt("Voto"));
+                bean.setTesto(rs.getString("Testo"));
+                bean.setDataRecensione(rs.getTimestamp("DataRecensione"));
+                bean.setNomeUtente(rs.getString("NomeUtenteVisibile"));
+                bean.setIdProdotto(rs.getInt("ID_Prodotto"));
+                bean.setNomeProdotto(rs.getString("NomeProdotto"));
+
+                recensioni.add(bean);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return recensioni;
     }
 }
