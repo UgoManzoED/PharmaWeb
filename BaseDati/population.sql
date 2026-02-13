@@ -1,10 +1,11 @@
+-- ==========================================================================================
+-- PharmaWeb Database Population Script (Versione Estesa)
+-- Password per tutti gli utenti: Password123!
+-- ==========================================================================================
+
 USE pharmaweb_db;
 
--- ==========================================================================================
--- --- Popolamento Tabelle Primarie (senza dipendenze) ---
--- ==========================================================================================
-
--- Popolamento Categoria
+-- --- 1. POPOLAMENTO CATEGORIE ---
 INSERT INTO Categoria (Nome) VALUES
 ('Integratori e Vitamine'),          -- ID 1
 ('Cosmetica e Bellezza'),            -- ID 2
@@ -13,112 +14,86 @@ INSERT INTO Categoria (Nome) VALUES
 ('Igiene e Cura Personale'),         -- ID 5
 ('Dispositivi Medici');              -- ID 6
 
--- Popolamento Utente
+-- --- 2. POPOLAMENTO UTENTI ---
+-- Password hashata con BCrypt per "Password123!"
+SET @pass = '$2a$12$R9h/lSuEbvTZzeTuQyia7e.8vK6uS5TjFv.m.U9xH/BvSxq8j/v0S';
+
 INSERT INTO Utente (Email, Password, Nome, Cognome, Ruolo, PuntiFedelta) VALUES
-('admin@pharmaweb.it', 'hash_password_admin', 'Admin', 'Pharma', 'admin', 0),                                 -- ID 1
-('mario.rossi@email.com', 'hash_password_cliente1', 'Mario', 'Rossi', 'cliente', 150),                        -- ID 2
-('laura.bianchi@email.com', 'hash_password_cliente2', 'Laura', 'Bianchi', 'cliente', 250),                      -- ID 3
-('giuseppe.verdi@email.com', 'hash_password_cliente3', 'Giuseppe', 'Verdi', 'cliente', 25),                   -- ID 4
-('anna.neri@email.com', 'hash_password_cliente4', 'Anna', 'Neri', 'cliente', 80);                             -- ID 5
+('admin@pharmaweb.it', @pass, 'Admin', 'Pharma', 'admin', 0),                                 -- ID 1
+('mario.rossi@email.com', @pass, 'Mario', 'Rossi', 'cliente', 150),                        -- ID 2
+('laura.bianchi@email.com', @pass, 'Laura', 'Bianchi', 'cliente', 250),                      -- ID 3
+('giuseppe.verdi@email.com', @pass, 'Giuseppe', 'Verdi', 'cliente', 25),                   -- ID 4
+('anna.neri@email.com', @pass, 'Anna', 'Neri', 'cliente', 80),                             -- ID 5
+('luca.bruni@email.com', @pass, 'Luca', 'Bruni', 'cliente', 10);                           -- ID 6
 
--- ==========================================================================================
--- --- Popolamento Tabelle Dipendenti da Utente ---
--- ==========================================================================================
-
--- Popolamento IndirizzoSpedizione
+-- --- 3. INDIRIZZI E PAGAMENTI ---
 INSERT INTO IndirizzoSpedizione (NomeDestinatario, Via, Citta, CAP, Provincia, FK_Utente) VALUES
 ('Mario Rossi - Casa', 'Via Roma 1', 'Napoli', '80121', 'NA', 2),
 ('Mario Rossi - Ufficio', 'Corso Umberto I 25', 'Napoli', '80138', 'NA', 2),
 ('Laura Bianchi', 'Piazza del Popolo 10', 'Roma', '00187', 'RM', 3),
-('Giuseppe Verdi', 'Via Dante Alighieri 5', 'Milano', '20121', 'MI', 4),
-('Anna Neri', 'Viale dei Mille 15', 'Firenze', '50131', 'FI', 5);
+('Giuseppe Verdi', 'Via Dante Alighieri 5', 'Milano', '20121', 'MI', 4);
 
--- Popolamento MetodoPagamento
 INSERT INTO MetodoPagamento (TipoCarta, Titolare, Ultime4Cifre, MeseScadenza, AnnoScadenza, FK_Utente) VALUES
 ('Visa', 'Mario Rossi', '1234', 12, 2026, 2),
 ('Mastercard', 'Laura Bianchi', '5678', 6, 2027, 3),
-('Paypal', 'Giuseppe Verdi', '9012', 3, 2028, 4),
-('Visa', 'Anna Neri', '3456', 9, 2025, 5);
+('Paypal', 'Giuseppe Verdi', '9012', 3, 2028, 4);
 
--- ==========================================================================================
--- --- Popolamento Catalogo Prodotti ---
--- ==========================================================================================
-
+-- --- 4. CATALOGO PRODOTTI (ESTESO) ---
 INSERT INTO Prodotto (Nome, Descrizione, Prezzo, ScontoPercentuale, QuantitaDisponibile, URL_Immagine, FK_Categoria) VALUES
--- Integratori (Cat ID 1)
-('Vitamina C 1000mg', 'Integratore di Vitamina C, 30 compresse effervescenti.', 12.00, 10, 80, 'img/vitamina-c.jpg', 1),
-('Magnesio Supremo', 'Integratore di magnesio in polvere, 150g.', 15.50, 0, 60, 'img/magnesio-supremo.jpg', 1),
-('Omega 3 Extra', 'Integratore di acidi grassi Omega 3, 60 perle.', 25.00, 15, 45, 'img/omega-3.jpg', 1),
--- Cosmetica (Cat ID 2)
-('Crema Viso Idratante', 'Crema idratante per pelli secche, 50ml.', 22.99, 0, 50, 'img/crema-viso.jpg', 2),
-('Siero Anti-età', 'Siero concentrato con acido ialuronico, 30ml.', 35.50, 20, 30, 'img/siero-antieta.jpg', 2),
-('Shampoo Delicato', 'Shampoo per uso frequente, 250ml.', 8.90, 0, 120, 'img/shampoo.jpg', 2),
--- Farmaci da Banco (Cat ID 3)
-('Paracetamolo 500mg', '20 compresse per stati febbrili e dolorosi.', 7.50, 0, 100, 'img/paracetamolo.jpg', 3),
-('Ibuprofene 400mg', '12 compresse per dolori di varia natura.', 9.20, 10, 90, 'img/ibuprofene.jpg', 3),
--- Infanzia (Cat ID 4)
-('Biberon Neonato', 'Biberon anti-colica per neonati 0-6 mesi.', 9.90, 0, 40, 'img/biberon.jpg', 4),
-('Pasta Protettiva', 'Pasta lenitiva per il cambio pannolino, 100g.', 6.50, 0, 70, 'img/pasta-protettiva.jpg', 4),
--- Igiene (Cat ID 5)
-('Collutorio Antibatterico', 'Collutorio per ligiene orale, 500ml.', 5.80, 5, 150, 'img/collutorio.jpg', 5),
-('Spazzolino Elettrico', 'Spazzolino elettrico con testina di ricambio.', 45.00, 0, 25, 'img/spazzolino.jpg', 5),
--- Dispositivi Medici (Cat ID 6)
-('Termometro Digitale', 'Termometro a misurazione rapida.', 11.50, 0, 60, 'img/termometro.jpg', 6),
-('Cerotti Assortiti', 'Confezione da 40 cerotti di varie misure.', 4.20, 0, 200, 'img/cerotti.jpg', 6),
-('Misuratore Pressione', 'Misuratore di pressione da braccio automatico.', 39.90, 10, 35, 'img/misuratore-pressione.jpg', 6);
+-- Integratori (Cat 1)
+('Vitamina C 1000mg', 'Integratore di Vitamina C purissima per le difese immunitarie.', 12.00, 10, 80, 'img/vitamina-c.jpg', 1),
+('Magnesio Supremo', 'Integratore di magnesio in polvere solubile, formula originale.', 15.50, 0, 60, 'img/magnesio-supremo.jpg', 1),
+('Omega 3 Extra', 'Acidi grassi purificati per il benessere cardiovascolare.', 25.00, 15, 45, 'img/omega-3.jpg', 1),
+('Multivitaminico A-Z', 'Complesso completo di vitamine e minerali per lo sport.', 18.90, 5, 100, 'img/multivitam.jpg', 1),
+-- Cosmetica (Cat 2)
+('Crema Viso Idratante', 'Trattamento idratante intensivo per pelli secche e sensibili.', 22.99, 0, 50, 'img/crema-viso.jpg', 2),
+('Siero Anti-età', 'Siero rigenerante all acido ialuronico e collagene.', 35.50, 20, 30, 'img/siero-antieta.jpg', 2),
+('Shampoo Delicato', 'Shampoo per uso quotidiano, rispetta il PH del cuoio capelluto.', 8.90, 0, 120, 'img/shampoo.jpg', 2),
+('Crema Mani Karitè', 'Protezione intensiva per mani screpolate dal freddo.', 5.50, 0, 200, 'img/crema-mani.jpg', 2),
+-- Farmaci da Banco (Cat 3)
+('Paracetamolo 500mg', 'Analgesico ed antipiretico per febbre e dolori lievi.', 7.50, 0, 100, 'img/paracetamolo.jpg', 3),
+('Ibuprofene 400mg', 'Antinfiammatorio per dolori articolari e muscolari.', 9.20, 10, 90, 'img/ibuprofene.jpg', 3),
+('Sciroppo Mucolitico', 'Sciroppo per tosse grassa, gusto menta.', 11.00, 0, 55, 'img/sciroppo.jpg', 3),
+-- Infanzia (Cat 4)
+('Biberon Neonato', 'Biberon ergonomico anti-colica 250ml.', 9.90, 0, 40, 'img/biberon.jpg', 4),
+('Pasta Protettiva', 'Pasta barriera per il cambio pannolino con ossido di zinco.', 6.50, 0, 70, 'img/pasta-protettiva.jpg', 4),
+('Latte in Polvere 1', 'Alimento completo per neonati da 0 a 6 mesi.', 21.00, 5, 30, 'img/latte-polvere.jpg', 4),
+-- Igiene (Cat 5)
+('Collutorio Antibatterico', 'Protezione completa per denti e gengive sane.', 5.80, 5, 150, 'img/collutorio.jpg', 5),
+('Spazzolino Elettrico', 'Tecnologia oscillante-rotante per una pulizia profonda.', 45.00, 0, 25, 'img/spazzolino.jpg', 5),
+-- Dispositivi Medici (Cat 6)
+('Termometro Digitale', 'Misurazione rapida in 10 secondi con segnale acustico.', 11.50, 0, 60, 'img/termometro.jpg', 6),
+('Misuratore Pressione', 'Sfigmomanometro da braccio automatico con display XL.', 39.90, 10, 35, 'img/misuratore-pressione.jpg', 6),
+('Saturimetro da Dito', 'Monitoraggio ossigeno e frequenza cardiaca.', 24.00, 25, 20, 'img/saturimetro.jpg', 6);
 
--- ==========================================================================================
--- --- Popolamento Ordini e Dettagli ---
--- ==========================================================================================
+-- --- 5. ORDINI E DETTAGLI ---
+-- Ordine 1
+INSERT INTO Ordine (ImportoTotale, IndirizzoSpedizione, MetodoPagamentoUtilizzato, Stato, PuntiGuadagnati, FK_Utente) VALUES
+(27.30, 'Mario Rossi - Casa, Via Roma 1, Napoli', 'Visa terminante in 1234', 'Consegnato', 1, 2);
+INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto) VALUES (1, 9, 2, 7.50), (1, 3, 1, 12.30);
 
--- Ordine 1: Mario Rossi (FK_Utente = 2)
+-- Ordine 2
 INSERT INTO Ordine (ImportoTotale, IndirizzoSpedizione, MetodoPagamentoUtilizzato, Stato, PuntiGuadagnati, PuntiUtilizzati, FK_Utente) VALUES
-(27.30, 'Mario Rossi - Casa, Via Roma 1, Napoli, 80121, NA', 'Visa terminante in 1234', 'Consegnato', 1, 0, 2);
-INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto) VALUES
-(1, 1, 2, 7.50),  -- 2x Paracetamolo (prezzo pieno 7.50)
-(1, 3, 1, 12.30); -- 1x Omega 3 (prezzo scontato 15%)
+(27.30, 'Laura Bianchi, Piazza del Popolo 10, Roma', 'Mastercard terminante in 5678', 'Spedito', 1, 10, 3);
+INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto) VALUES (2, 6, 1, 28.40), (2, 7, 1, 8.90);
 
--- Ordine 2: Laura Bianchi (FK_Utente = 3) - Usa punti per uno sconto
--- Subtotale: 1x Siero (28.40) + 1x Shampoo (8.90) = 37.30. Usa 10 punti (10 euro sconto). Totale: 27.30
-INSERT INTO Ordine (ImportoTotale, IndirizzoSpedizione, MetodoPagamentoUtilizzato, Stato, PuntiGuadagnati, PuntiUtilizzati, FK_Utente) VALUES
-(27.30, 'Laura Bianchi, Piazza del Popolo 10, Roma, 00187, RM', 'Mastercard terminante in 5678', 'Spedito', 1, 10, 3);
-INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto) VALUES
-(2, 5, 1, 28.40), -- 1x Siero (prezzo scontato 20%)
-(2, 6, 1, 8.90);  -- 1x Shampoo (prezzo pieno 8.90)
-
--- Ordine 3: Giuseppe Verdi (FK_Utente = 4)
-INSERT INTO Ordine (ImportoTotale, IndirizzoSpedizione, MetodoPagamentoUtilizzato, Stato, PuntiGuadagnati, PuntiUtilizzati, FK_Utente) VALUES
-(42.40, 'Giuseppe Verdi, Via Dante Alighieri 5, Milano, 20121, MI', 'Paypal', 'In elaborazione', 2, 0, 4);
-INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto) VALUES
-(3, 10, 1, 6.50), -- 1x Pasta Protettiva
-(3, 15, 1, 35.91); -- 1x Misuratore Pressione (scontato 10%)
-
--- Ordine 4: Mario Rossi (FK_Utente = 2) - Secondo ordine
-INSERT INTO Ordine (ImportoTotale, IndirizzoSpedizione, MetodoPagamentoUtilizzato, Stato, PuntiGuadagnati, PuntiUtilizzati, FK_Utente) VALUES
-(45.00, 'Mario Rossi - Ufficio, Corso Umberto I 25, Napoli, 80138, NA', 'Visa terminante in 1234', 'Consegnato', 2, 0, 2);
-INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto) VALUES
-(4, 12, 1, 45.00); -- 1x Spazzolino Elettrico
-
--- ==========================================================================================
--- --- Popolamento Tabelle Secondarie (Recensioni, Storico Punti) ---
--- ==========================================================================================
-
--- Popolamento Recensione (basato su prodotti acquistati negli ordini di esempio)
+-- --- 6. RECENSIONI E STORICO PUNTI ---
 INSERT INTO Recensione (Voto, Testo, FK_Utente, FK_Prodotto) VALUES
-(5, 'Ottimo prodotto, efficace e conveniente. Spedizione velocissima!', 2, 1), -- Mario Rossi recensisce Paracetamolo
-(4, 'Lascia la pelle molto morbida, anche se la profumazione è un po forte. Consigliato.', 3, 5), -- Laura Bianchi recensisce Siero
-(5, 'Il miglior spazzolino elettrico che abbia mai provato. Vale ogni centesimo!', 2, 12); -- Mario Rossi recensisce Spazzolino Elettrico
+(5, 'Efficace e veloce, non manca mai nel mio armadietto.', 2, 9),
+(4, 'Ottima texture, lascia la pelle molto idratata.', 3, 6),
+(5, 'Strumento preciso e facilissimo da usare.', 2, 18);
 
--- Popolamento StoricoPunti
 INSERT INTO StoricoPunti (Punti, Tipo, FK_Utente, FK_Ordine) VALUES
--- Punti Ordine 1
 (1, 'ACCREDITO_ORDINE', 2, 1),
--- Punti Ordine 2
 (-10, 'UTILIZZO_SCONTO', 3, 2),
-(1, 'ACCREDITO_ORDINE', 3, 2),
--- Punti Ordine 3
-(2, 'ACCREDITO_ORDINE', 4, 3),
--- Punti Ordine 4
-(2, 'ACCREDITO_ORDINE', 2, 4),
--- Movimento manuale (es. bonus)
-(50, 'BONUS_BENVENUTO', 5, NULL);
+(1, 'ACCREDITO_ORDINE', 3, 2);
+
+-- --- 7. PERSISTENZA (CARRELLO E WISHLIST SALVATI) ---
+-- Mario Rossi ha lasciato una Vitamina C nel carrello
+INSERT INTO CarrelloPersistente (FK_Utente, FK_Prodotto, Quantita) VALUES (2, 1, 1);
+
+-- Laura Bianchi ha il Misuratore Pressione nella Wishlist
+INSERT INTO WishlistPersistente (FK_Utente, FK_Prodotto) VALUES (3, 18);
+
+-- Giuseppe Verdi ha lo Spazzolino Elettrico nella Wishlist
+INSERT INTO WishlistPersistente (FK_Utente, FK_Prodotto) VALUES (4, 16);
