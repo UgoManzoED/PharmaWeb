@@ -53,6 +53,14 @@
                 <div class="user-menu">
                     <span class="welcome-msg">Ciao, <strong><c:out value="${sessionScope.utente.nome}"/></strong></span>
                     <div class="user-links">
+                        
+                        <%-- Link visibile solo agli amministratori --%>
+                        <c:if test="${sessionScope.utente.ruolo == 'admin'}">
+                            <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: var(--error-red, red);">
+                                <i class="fas fa-user-shield"></i> PANNELLO ADMIN
+                            </a>
+                        </c:if>
+
                         <a href="${pageContext.request.contextPath}/area-riservata/dashboard">Il mio account</a>
                         <a href="${pageContext.request.contextPath}/logout" class="logout-link">Esci</a>
                     </div>

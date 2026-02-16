@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @version 1.0
  */
 
-@WebServlet("")
+@WebServlet("/home")
 public class HomePageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
