@@ -13,9 +13,10 @@
         
         <%-- GESTIONE ERRORI: Mostra messaggi provenienti dal backend (es. prodotto esaurito durante spostamento) --%>
         <c:if test="${not empty sessionScope.wishlistError}">
-            <div class="alert-error" style="background-color: #ffebee; color: #c62828; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #ef9a9a;">
-                <c:out value="${sessionScope.wishlistError}" />
+            <div class="alert-error" role="alert" aria-live="assertive" style="background-color: #ffebee; color: #c62828; padding: 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ef9a9a;">
+                <i class="fas fa-exclamation-circle"></i> <c:out value="${sessionScope.wishlistError}" />
             </div>
+            <%-- Rimuovi l'errore dalla sessione dopo averlo mostrato per non farlo ricomparire al refresh --%>
             <c:remove var="wishlistError" scope="session"/>
         </c:if>
 
@@ -23,6 +24,7 @@
         <c:choose>
             <c:when test="${not empty sessionScope.wishlist and not empty sessionScope.wishlist.items}">
                 <div class="wishlist-content">
+                    
                     <%-- Azioni globali sulla wishlist --%>
                     <div class="global-actions">
                         <form method="post" action="${pageContext.request.contextPath}/wishlist" 
@@ -30,55 +32,62 @@
                             <input type="hidden" name="action" value="clear">
                             <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
                             <button type="submit" class="clear-wishlist-btn" 
-                                    onclick="return confirm('Sei sicuro di voler svuotare la lista desideri?')">
-                                Svuota lista desideri
+                                    onclick="return confirm('Sei sicuro di voler svuotare completamente la tua lista desideri?')">
+                                <i class="fas fa-trash-sweep"></i> Svuota lista desideri
                             </button>
                         </form>
                         
+                        <%-- Permetti lo spostamento massivo solo se l'utente è loggato --%>
                         <c:if test="${not empty sessionScope.utente}">
                             <form method="post" action="${pageContext.request.contextPath}/wishlist" 
                                   style="display: inline;">
                                 <input type="hidden" name="action" value="moveAllToCart">
                                 <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
                                 <button type="submit" class="move-all-to-cart-btn" 
-                                        onclick="return confirm('Vuoi spostare tutti i prodotti disponibili nel carrello?')">
-                                    Sposta tutto nel carrello
+                                        onclick="return confirm('Vuoi spostare tutti i prodotti attualmente disponibili nel carrello?')">
+                                    <i class="fas fa-cart-arrow-down"></i> Sposta tutto nel carrello
                                 </button>
                             </form>
                         </c:if>
                     </div>
                     
                     <div class="wishlist-grid">
-                        <%-- Ciclo per ogni prodotto nella wishlist --%>
+                        <%-- Ciclo per ogni prodotto presente nella wishlist --%>
                         <c:forEach var="prodotto" items="${sessionScope.wishlist.items}">
-                            <div class="wishlist-item">
+                            <div class="wishlist-item card">
                                 <div class="product-image-wrapper">
-                                    <img src="${pageContext.request.contextPath}/${prodotto.urlImmagine}" 
-                                         alt="<c:out value='${prodotto.nomeProdotto}'/>" 
-                                         class="wishlist-product-image"
-                                         onerror="this.src='${pageContext.request.contextPath}/img/placeholder.jpg'">
+                                    <a href="${pageContext.request.contextPath}/prodotto?id=${prodotto.idProdotto}">
+                                        <img src="${pageContext.request.contextPath}/${prodotto.urlImmagine}" 
+                                             alt="<c:out value='${prodotto.nomeProdotto}'/>" 
+                                             class="wishlist-product-image"
+                                             onerror="this.src='${pageContext.request.contextPath}/img/placeholder.jpg'">
+                                    </a>
                                     
-                                    <%-- Mostra badge sconto se presente --%>
+                                    <%-- Badge sconto evidenziato --%>
                                     <c:if test="${prodotto.scontoPercentuale > 0}">
                                         <span class="discount-badge">-${prodotto.scontoPercentuale}%</span>
                                     </c:if>
                                 </div>
                                 
                                 <div class="product-info">
-                                    <%-- XSS Prevention --%>
-                                    <h3 class="product-name"><c:out value="${prodotto.nomeProdotto}"/></h3>
+                                    <%-- Good Practice: XSS Prevention tramite c:out --%>
+                                    <h3 class="product-name">
+                                        <a href="${pageContext.request.contextPath}/prodotto?id=${prodotto.idProdotto}">
+                                            <c:out value="${prodotto.nomeProdotto}"/>
+                                        </a>
+                                    </h3>
                                     <p class="product-description"><c:out value="${prodotto.descrizione}"/></p>
                                     
-                                    <%-- Mostra prezzo, se c'è sconto mostra anche prezzo originale --%>
+                                    <%-- Visualizzazione Prezzo con gestione Sconto --%>
                                     <div class="product-price">
                                         <c:choose>
                                             <c:when test="${prodotto.scontoPercentuale > 0}">
-                                                <span class="original-price">
+                                                <span class="original-price" aria-label="Prezzo originale">
                                                     <fmt:formatNumber value="${prodotto.prezzoDiListino}" 
                                                                         type="currency" 
                                                                         currencySymbol="€"/>
                                                 </span>
-                                                <span class="discounted-price">
+                                                <span class="discounted-price" aria-label="Prezzo scontato">
                                                     <fmt:formatNumber value="${prodotto.prezzoFinale}" 
                                                                         type="currency" 
                                                                         currencySymbol="€"/>
@@ -94,35 +103,39 @@
                                         </c:choose>
                                     </div>
                                     
-                                    <%-- Mostra se il prodotto è disponibile o meno --%>
+                                    <%-- Stato disponibilità in tempo reale --%>
                                     <div class="availability-status">
                                         <c:choose>
                                             <c:when test="${prodotto.quantitaDisponibile > 0}">
-                                                <span class="in-stock">Disponibile</span>
+                                                <span class="status-tag in-stock"><i class="fas fa-check"></i> Disponibile</span>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="out-of-stock">Non disponibile</span>
+                                                <span class="status-tag out-of-stock"><i class="fas fa-times"></i> Non disponibile</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </div>
                                 </div>
                                 
                                 <div class="product-actions">
-                                    <%-- Form per rimuovere il prodotto dalla wishlist --%>
-                                    <form method="post" action="${pageContext.request.contextPath}/wishlist" style="display: inline;">
+                                    <%-- Form per rimuovere il singolo prodotto dalla wishlist --%>
+                                    <form method="post" action="${pageContext.request.contextPath}/wishlist" class="action-form">
                                         <input type="hidden" name="action" value="remove">
                                         <input type="hidden" name="productId" value="${prodotto.idProdotto}">
                                         <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-                                        <button type="submit" class="remove-from-wishlist-btn">Rimuovi</button>
+                                        <button type="submit" class="remove-from-wishlist-btn" title="Rimuovi dalla lista">
+                                            <i class="fas fa-heart-broken"></i> Rimuovi
+                                        </button>
                                     </form>
                                     
-                                    <%-- Aggiungi al carrello solo se il prodotto è disponibile --%>
+                                    <%-- Permetti lo spostamento al carrello solo se il prodotto è effettivamente disponibile --%>
                                     <c:if test="${prodotto.quantitaDisponibile > 0}">
-                                        <form method="post" action="${pageContext.request.contextPath}/wishlist" style="display: inline;">
+                                        <form method="post" action="${pageContext.request.contextPath}/wishlist" class="action-form">
                                             <input type="hidden" name="action" value="moveToCart">
                                             <input type="hidden" name="productId" value="${prodotto.idProdotto}">
                                             <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-                                            <button type="submit" class="move-to-cart-btn">Aggiungi al carrello</button>
+                                            <button type="submit" class="move-to-cart-btn">
+                                                <i class="fas fa-cart-plus"></i> Sposta nel carrello
+                                            </button>
                                         </form>
                                     </c:if>
                                 </div>
@@ -130,20 +143,19 @@
                         </c:forEach>
                     </div>
                     
-                    <div class="wishlist-info">
-                        <%-- Usiamo .size che JSTL mappa automaticamente sul metodo getSize() del bean --%>
-                        <p><strong>${sessionScope.wishlist.size} prodotto/i</strong> nella tua lista desideri</p>
+                    <div class="wishlist-summary-info">
+                        <p>Hai salvato <strong>${sessionScope.wishlist.size} prodotto/i</strong> nella tua lista.</p>
                     </div>
                 </div>
             </c:when>
             <c:otherwise>
-                <%-- Messaggio e invito ad aggiungere prodotti se la wishlist è vuota --%>
-                <div class="empty-wishlist">
-                    <div class="empty-wishlist-icon">❤️</div>
+                <%-- Visualizzazione stato vuoto --%>
+                <div class="empty-wishlist-state">
+                    <div class="empty-icon">❤️</div>
                     <h2>La tua lista desideri è vuota</h2>
-                    <p>Inizia ad aggiungere i tuoi prodotti preferiti dal catalogo!</p>
+                    <p>Salva qui i prodotti che ti interessano per ritrovarli più facilmente o acquistarli in seguito.</p>
                     <a href="${pageContext.request.contextPath}/" class="continue-shopping-btn">
-                        Continua lo shopping
+                        <i class="fas fa-arrow-left"></i> Continua lo shopping
                     </a>
                 </div>
             </c:otherwise>

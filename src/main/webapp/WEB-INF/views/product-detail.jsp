@@ -35,7 +35,7 @@
                         <span class="discount-badge-large">-${product.scontoPercentuale}%</span>
                     </c:if>
                     <img src="${pageContext.request.contextPath}/${product.urlImmagine}" 
-                         alt="${product.nomeProdotto}" 
+                         alt="<c:out value='${product.nomeProdotto}'/>" 
                          class="product-image-large"
                          onerror="this.src='${pageContext.request.contextPath}/img/placeholder.jpg'">
                 </div>
@@ -83,10 +83,10 @@
                     <c:choose>
                         <c:when test="${product.quantitaDisponibile > 10}">
                             <span class="availability in-stock">✓ Disponibile</span>
-                            <span class="stock-info">(${product.quantitaDisponibile} pezzi disponibili)</span>
+                            <span class="stock-info">(<c:out value="${product.quantitaDisponibile}"/> pezzi disponibili)</span>
                         </c:when>
                         <c:when test="${product.quantitaDisponibile > 0}">
-                            <span class="availability low-stock">⚠ Ultimi ${product.quantitaDisponibile} pezzi</span>
+                            <span class="availability low-stock">⚠ Ultimi <c:out value="${product.quantitaDisponibile}"/> pezzi</span>
                         </c:when>
                         <c:otherwise>
                             <span class="availability out-of-stock">✗ Non disponibile</span>
@@ -141,16 +141,9 @@
                                     </div>
                                     <div class="review-rating">
                                         <c:forEach begin="1" end="5" var="i">
-                                            <c:choose>
-                                                <c:when test="${i <= recensione.voto}">
-                                                    <span class="star filled">★</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="star empty">☆</span>
-                                                </c:otherwise>
-                                            </c:choose>
+                                            <span class="star ${i <= recensione.voto ? 'filled' : 'empty'}">${i <= recensione.voto ? '★' : '☆'}</span>
                                         </c:forEach>
-                                        <span class="rating-number">(${recensione.voto}/5)</span>
+                                        <span class="rating-number">(<c:out value="${recensione.voto}"/>/5)</span>
                                     </div>
                                 </div>
                                 <c:if test="${not empty recensione.testo}">
@@ -173,7 +166,7 @@
                     <h3>Lascia una recensione</h3>
                     
                     <c:if test="${not empty error}">
-                        <div class="review-error">${error}</div>
+                        <div class="review-error"><c:out value="${error}"/></div>
                     </c:if>
                     
                     <form action="${pageContext.request.contextPath}/prodotto" method="post" class="review-form" id="reviewForm">
@@ -197,7 +190,7 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="testo">Commento (facoltativo)</label>
+                            <label for="reviewText">Commento (facoltativo)</label>
                             <textarea name="testo" id="reviewText" rows="5" 
                                       placeholder="Condividi la tua esperienza con questo prodotto..."
                                       maxlength="1000"></textarea>
@@ -209,12 +202,14 @@
                 </div>
             </c:if>
             
+            <%-- Avviso se l'utente è loggato ma non ha comprato --%>
             <c:if test="${not canReview and not empty sessionScope.utente}">
                 <div class="cannot-review-notice">
                     <p>Puoi recensire questo prodotto solo dopo averlo acquistato.</p>
                 </div>
             </c:if>
             
+            <%-- Avviso se l'utente non è loggato --%>
             <c:if test="${empty sessionScope.utente}">
                 <div class="login-to-review-notice">
                     <p>

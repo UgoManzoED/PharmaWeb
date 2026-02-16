@@ -39,7 +39,7 @@ public class AuthenticationFilter implements Filter {
         } else {
             // L'utente non è autenticato.
             // Reindirizziamolo alla pagina di login.
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.jsp");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
         }
     }
     

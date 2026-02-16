@@ -9,11 +9,13 @@
 <main class="error-page">
     <div class="error-container">
         <div class="error-content">
-            <div class="error-icon">🔍</div>
+            <div class="error-icon">
+                <i class="fas fa-search"></i>
+            </div>
             <h1 class="error-code">404</h1>
             <h2 class="error-title">Pagina non trovata</h2>
             <p class="error-message">
-                La pagina che stai cercando non esiste o è stata spostata.
+                La pagina che stai cercando non esiste, è stata rimossa o l'indirizzo inserito non è corretto.
             </p>
             
             <div class="error-actions">
@@ -26,12 +28,12 @@
             </div>
             
             <div class="error-help">
-                <p>Hai bisogno di aiuto?</p>
+                <p>Potresti trovare quello che cerchi qui:</p>
                 <ul class="help-links">
-                    <li><a href="${pageContext.request.contextPath}/">Pagina principale</a></li>
-                    <li><a href="${pageContext.request.contextPath}/catalogo">Catalogo prodotti</a></li>
-                    <li><a href="${pageContext.request.contextPath}/cart">Il mio carrello</a></li>
-                    <li><a href="${pageContext.request.contextPath}/wishlist">Lista desideri</a></li>
+                    <li><a href="${pageContext.request.contextPath}/">Home</a></li>
+                    <li><a href="${pageContext.request.contextPath}/catalogo">Prodotti</a></li>
+                    <li><a href="${pageContext.request.contextPath}/cart">Carrello</a></li>
+                    <li><a href="${pageContext.request.contextPath}/wishlist">Wishlist</a></li>
                 </ul>
             </div>
         </div>

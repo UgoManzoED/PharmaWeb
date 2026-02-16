@@ -9,15 +9,18 @@
 <main class="error-page">
     <div class="error-container">
         <div class="error-content">
-            <div class="error-icon">🚫</div>
+            <div class="error-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
             <h1 class="error-code">403</h1>
             <h2 class="error-title">Accesso negato</h2>
             <p class="error-message">
-                Non hai i permessi necessari per accedere a questa risorsa.
+                Spiacenti, non hai i permessi necessari per accedere a questa risorsa o la tua sessione è scaduta.
             </p>
             
             <div class="error-actions">
                 <c:choose>
+                    <%-- Se l'utente non è loggato, suggeriamo il login --%>
                     <c:when test="${empty sessionScope.utente}">
                         <a href="${pageContext.request.contextPath}/login" class="btn-primary">
                             Effettua il login
@@ -26,6 +29,7 @@
                             Torna alla Home
                         </a>
                     </c:when>
+                    <%-- Se è loggato ma ha provato ad accedere a pagine admin o altrui --%>
                     <c:otherwise>
                         <a href="${pageContext.request.contextPath}/" class="btn-primary">
                             Torna alla Home
@@ -38,7 +42,7 @@
             </div>
             
             <div class="error-help">
-                <p>Se pensi che questo sia un errore, contatta il supporto.</p>
+                <p>Se ritieni che questo sia un errore del sistema, contatta il supporto tecnico.</p>
             </div>
         </div>
     </div>
