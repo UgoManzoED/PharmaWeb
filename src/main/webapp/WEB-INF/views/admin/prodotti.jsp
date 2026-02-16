@@ -8,104 +8,158 @@
 </jsp:include>
 
 <main class="admin-page">
-    <h1>Gestione Catalogo Prodotti</h1>
+    <div class="admin-container">
+        
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="${pageContext.request.contextPath}/">Home</a>
+            <span>&gt;</span>
+            <a href="${pageContext.request.contextPath}/admin/dashboard">Dashboard Admin</a>
+            <span>&gt;</span>
+            <span>Gestione Catalogo</span>
+        </div>
 
-    <!-- FORM DI INSERIMENTO / MODIFICA -->
-    <section class="admin-form-section">
-        <h2>${not empty productToEdit ? 'Modifica Prodotto' : 'Aggiungi Nuovo Prodotto'}</h2>
-        <form action="prodotti" method="post" enctype="multipart/form-data" class="admin-form">
-            <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-            <input type="hidden" name="action" value="${not empty productToEdit ? 'update' : 'save'}">
-            <c:if test="${not empty productToEdit}">
-                <input type="hidden" name="id" value="${productToEdit.idProdotto}">
-                <input type="hidden" name="oldImmagine" value="${productToEdit.urlImmagine}">
-            </c:if>
+        <h1>Gestione Catalogo Prodotti</h1>
 
-            <div class="form-grid">
-                <div class="field">
-                    <label>Nome Prodotto</label>
-                    <input type="text" name="nome" value="${productToEdit.nomeProdotto}" required>
+        <!-- FORM DI INSERIMENTO / MODIFICA -->
+        <section class="admin-form-section" id="form-prodotto">
+            <h2>
+                <c:choose>
+                    <c:when test="${not empty productToEdit}">Modifica Prodotto: <c:out value="${productToEdit.nomeProdotto}"/></c:when>
+                    <c:otherwise>Aggiungi Nuovo Prodotto</c:otherwise>
+                </c:choose>
+            </h2>
+            
+            <form action="${pageContext.request.contextPath}/admin/prodotti" method="post" enctype="multipart/form-data" class="admin-form">
+                <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
+                <input type="hidden" name="action" value="${not empty productToEdit ? 'update' : 'save'}">
+                
+                <c:if test="${not empty productToEdit}">
+                    <input type="hidden" name="id" value="${productToEdit.idProdotto}">
+                    <input type="hidden" name="oldImmagine" value="${productToEdit.urlImmagine}">
+                </c:if>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="nome">Nome Prodotto</label>
+                        <input type="text" id="nome" name="nome" value="<c:out value='${productToEdit.nomeProdotto}'/>" required>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="idCategoria">Categoria</label>
+                        <select id="idCategoria" name="idCategoria" required>
+                            <option value="">Seleziona...</option>
+                            <c:forEach var="cat" items="${categories}">
+                                <option value="${cat.idCategoria}" ${productToEdit.idCategoria == cat.idCategoria ? 'selected' : ''}>
+                                    <c:out value="${cat.nome}"/>
+                                </option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="prezzo">Prezzo di Listino (€)</label>
+                        <input type="number" id="prezzo" name="prezzo" step="0.01" min="0" value="${productToEdit.prezzoDiListino}" required>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="sconto">Sconto (%)</label>
+                        <input type="number" id="sconto" name="sconto" min="0" max="99" value="${not empty productToEdit ? productToEdit.scontoPercentuale : 0}">
+                    </div>
+                    
+                    <div class="field">
+                        <label for="quantita">Quantità Stock</label>
+                        <input type="number" id="quantita" name="quantita" min="0" value="${not empty productToEdit ? productToEdit.quantitaDisponibile : 0}" required>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="immagine">
+                            Immagine ${not empty productToEdit ? '(Lascia vuoto per mantenere attuale)' : '*'}
+                        </label>
+                        <input type="file" id="immagine" name="immagine" accept="image/*" ${empty productToEdit ? 'required' : ''}>
+                    </div>
                 </div>
-                <div class="field">
-                    <label>Categoria</label>
-                    <select name="idCategoria" required>
-                        <c:forEach var="cat" items="${categories}">
-                            <option value="${cat.idCategoria}" ${productToEdit.idCategoria == cat.idCategoria ? 'selected' : ''}>
-                                ${cat.nome}
-                            </option>
-                        </c:forEach>
-                    </select>
+                
+                <div class="field full-width">
+                    <label for="descrizione">Descrizione Prodotto</label>
+                    <textarea id="descrizione" name="descrizione" rows="4" required><c:out value="${productToEdit.descrizione}"/></textarea>
                 </div>
-                <div class="field">
-                    <label>Prezzo (€)</label>
-                    <input type="number" name="prezzo" step="0.01" value="${productToEdit.prezzoDiListino}" required>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> ${not empty productToEdit ? 'Aggiorna' : 'Salva'} Prodotto
+                    </button>
+                    <c:if test="${not empty productToEdit}">
+                        <a href="${pageContext.request.contextPath}/admin/prodotti" class="btn-cancel">Annulla</a>
+                    </c:if>
                 </div>
-                <div class="field">
-                    <label>Sconto (%)</label>
-                    <input type="number" name="sconto" min="0" max="99" value="${productToEdit.scontoPercentuale != null ? productToEdit.scontoPercentuale : 0}">
-                </div>
-                <div class="field">
-                    <label>Quantità Stock</label>
-                    <input type="number" name="quantita" value="${productToEdit.quantitaDisponibile}" required>
-                </div>
-                <div class="field">
-                    <label>Immagine ${not empty productToEdit ? '(Lascia vuoto per non cambiare)' : '*'}</label>
-                    <input type="file" name="immagine" accept="image/*" ${empty productToEdit ? 'required' : ''}>
-                </div>
+            </form>
+        </section>
+
+        <!-- TABELLA PRODOTTI -->
+        <section class="admin-table-section">
+            <div class="section-header">
+                <h2>Prodotti nel Catalogo Attivo</h2>
+                <span class="results-count">${products.size()} articoli trovati</span>
             </div>
             
-            <div class="field full-width">
-                <label>Descrizione</label>
-                <textarea name="descrizione" rows="4" required>${productToEdit.descrizione}</textarea>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-save">Salva Prodotto</button>
-                <c:if test="${not empty productToEdit}">
-                    <a href="prodotti" class="btn-cancel">Annulla</a>
-                </c:if>
-            </div>
-        </form>
-    </section>
-
-    <!-- TABELLA PRODOTTI -->
-    <section class="admin-table-section">
-        <h2>Prodotti in Catalogo</h2>
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Foto</th>
-                    <th>Nome</th>
-                    <th>Prezzo</th>
-                    <th>Stock</th>
-                    <th>Azioni</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="p" items="${products}">
+            <table class="admin-table">
+                <thead>
                     <tr>
-                        <td><img src="${pageContext.request.contextPath}/${p.urlImmagine}" width="50"></td>
-                        <td>${p.nomeProdotto}</td>
-                        <td>€ ${p.prezzoFinale}</td>
-                        <td>
-                            <span class="${p.quantitaDisponibile < 10 ? 'low-stock' : ''}">
-                                ${p.quantitaDisponibile}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="prodotti?action=edit&id=${p.idProdotto}" class="btn-edit-sm">📝</a>
-                            <form action="prodotti" method="post" style="display:inline;" onsubmit="return confirm('Eliminare definitivamente?')">
-                                <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="${p.idProdotto}">
-                                <button type="submit" class="btn-delete-sm">🗑️</button>
-                            </form>
-                        </td>
+                        <th>Anteprima</th>
+                        <th>Nome</th>
+                        <th>Prezzo Finale</th>
+                        <th>Stock</th>
+                        <th>Azioni</th>
                     </tr>
-                </c:forEach>
-            </tbody>
-        </table>
-    </section>
+                </thead>
+                <tbody>
+                    <c:forEach var="p" items="${products}">
+                        <tr>
+                            <td>
+                                <img src="${pageContext.request.contextPath}/${p.urlImmagine}" 
+                                     alt="Foto" class="admin-thumb-small" 
+                                     onerror="this.src='${pageContext.request.contextPath}/img/placeholder.jpg'">
+                            </td>
+                            <td class="cell-name">
+                                <strong><c:out value="${p.nomeProdotto}"/></strong>
+                                <c:if test="${p.scontoPercentuale > 0}">
+                                    <span class="table-discount-tag">-${p.scontoPercentuale}%</span>
+                                </c:if>
+                            </td>
+                            <td>
+                                <fmt:formatNumber value="${p.prezzoFinale}" type="currency" currencySymbol="€"/>
+                            </td>
+                            <td>
+                                <%-- Feedback visivo per stock basso --%>
+                                <span class="stock-badge ${p.quantitaDisponibile < 10 ? 'stock-low' : 'stock-ok'}">
+                                    <c:out value="${p.quantitaDisponibile}"/>
+                                </span>
+                            </td>
+                            <td class="actions-cell">
+                                <%-- Edit richiama il doGet della Servlet con action=edit --%>
+                                <a href="${pageContext.request.contextPath}/admin/prodotti?action=edit&id=${p.idProdotto}#form-prodotto" 
+                                   class="btn-edit-sm" title="Modifica">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                
+                                <%-- Delete implementato come Soft Delete --%>
+                                <form action="${pageContext.request.contextPath}/admin/prodotti" method="post" style="display:inline;" 
+                                      onsubmit="return confirm('Vuoi disattivare questo prodotto? Non sarà più visibile nel catalogo ma rimarrà registrato negli ordini passati.')">
+                                    <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="${p.idProdotto}">
+                                    <button type="submit" class="btn-delete-sm" title="Elimina (Soft Delete)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </section>
+    </div>
 </main>
 
 <script src="${pageContext.request.contextPath}/js/admin-validation.js"></script>
