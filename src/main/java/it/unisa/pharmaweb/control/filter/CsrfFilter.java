@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpServletResponse;
  * Per le richieste GET, genera un token, lo salva in sessione e lo rende disponibile per le viste.
  * Per le richieste POST, valida il token ricevuto dal form contro quello in sessione.
  */
-@WebFilter("/*") // Intercetta tutte le richieste all'applicazione
 public class CsrfFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

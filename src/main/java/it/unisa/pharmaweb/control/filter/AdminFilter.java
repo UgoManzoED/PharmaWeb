@@ -49,7 +49,7 @@ public class AdminFilter implements Filter {
             if (isLoggedIn) {
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Accesso negato. Area riservata agli amministratori.");
             } else {
-                httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.jsp");
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
             }
         }
     }
