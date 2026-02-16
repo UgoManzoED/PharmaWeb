@@ -2,11 +2,14 @@ package it.unisa.pharmaweb.model.dao;
 
 import it.unisa.pharmaweb.model.bean.OrdineBean;
 import it.unisa.pharmaweb.model.bean.RigaOrdineBean;
+import it.unisa.pharmaweb.model.dao.DriverManagerConnectionPool;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrdineDAO {
+
     /**
      * Salva un ordine completo (testata e righe) nel database.
      * Questo metodo DEVE essere eseguito all'interno di una transazione.
@@ -39,14 +42,19 @@ public class OrdineDAO {
             }
         }
         
-        // 2. Inserisci le righe dell'ordine
-        String rigaSql = "INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto) VALUES (?, ?, ?, ?)";
+        // 2. Inserisci le righe dell'ordine con SNAPSHOT
+        // Aggiornato per salvare Nome e IVA al momento dell'acquisto
+        String rigaSql = "INSERT INTO RigaOrdine (FK_Ordine, FK_Prodotto, Quantita, PrezzoAcquisto, NomeProdottoSnapshot, IvaApplicata) VALUES (?, ?, ?, ?, ?, ?)";
+        
         try (PreparedStatement stmtRiga = conn.prepareStatement(rigaSql)) {
             for (RigaOrdineBean riga : ordine.getRighe()) {
                 stmtRiga.setInt(1, ordine.getIdOrdine());
                 stmtRiga.setInt(2, riga.getProdotto().getIdProdotto());
                 stmtRiga.setInt(3, riga.getQuantita());
-                stmtRiga.setDouble(4, riga.getPrezzoAlMomentoDellAcquisto());
+                stmtRiga.setDouble(4, riga.getProdotto().getPrezzoFinale()); 
+                stmtRiga.setString(5, riga.getProdotto().getNomeProdotto()); 
+                stmtRiga.setInt(6, 22);
+
                 stmtRiga.addBatch();
             }
             stmtRiga.executeBatch();
@@ -55,6 +63,7 @@ public class OrdineDAO {
     
     /**
      * Recupera tutti gli ordini effettuati da un utente specifico, ordinati dal più recente.
+     * Nota: Questo recupera solo le "testate" degli ordini per la lista riepilogativa.
      * @param idUtente l'ID dell'utente di cui recuperare lo storico.
      * @return una List di OrdineBean.
      */
@@ -86,7 +95,7 @@ public class OrdineDAO {
     }
     
     /**
-     * Recupera gli ordini filtrati per data e/o cliente.
+     * Recupera gli ordini filtrati per data e/o cliente (Funzionalità Admin).
      * Se un parametro è null, viene ignorato nel filtro.
      */
     public List<OrdineBean> getAllOrdini(String startDate, String endDate, String emailCliente) {
@@ -141,12 +150,13 @@ public class OrdineDAO {
     }
     
     /**
-     * Recupera un singolo ordine tramite il suo ID.
+     * Recupera un singolo ordine completo (Testata + Righe/Prodotti).
      * @param idOrdine l'ID dell'ordine da cercare.
      * @return l'oggetto OrdineBean popolato, o null se non trovato.
      */
     public OrdineBean getOrdineById(int idOrdine) {
         String sql = "SELECT * FROM VistaRiepilogoOrdini WHERE ID_Ordine = ?";
+        OrdineBean ordine = null;
         
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -155,7 +165,7 @@ public class OrdineDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                OrdineBean ordine = new OrdineBean();
+                ordine = new OrdineBean();
                 ordine.setIdOrdine(rs.getInt("ID_Ordine"));
                 ordine.setDataOrdine(rs.getTimestamp("DataOrdine"));
                 ordine.setImportoTotale(rs.getDouble("ImportoTotale"));
@@ -163,11 +173,44 @@ public class OrdineDAO {
                 ordine.setIndirizzoSpedizione(rs.getString("IndirizzoSpedizione"));
                 ordine.setMetodoPagamentoUtilizzato(rs.getString("MetodoPagamentoUtilizzato"));
                 ordine.setIdUtente(rs.getInt("ID_Utente"));
-                return ordine;
+                ordine.setRighe(doRetrieveRigheByOrdine(idOrdine));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return ordine;
+    }
+
+    /**
+     * Metodo Helper per recuperare le righe di un ordine.
+     * Mappa i dati storici (Snapshot) nel RigaOrdineBean.
+     */
+    private List<RigaOrdineBean> doRetrieveRigheByOrdine(int idOrdine) {
+        List<RigaOrdineBean> righe = new ArrayList<>();
+        String sql = "SELECT * FROM RigaOrdine WHERE FK_Ordine = ?";
+        
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             
+            stmt.setInt(1, idOrdine);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                RigaOrdineBean riga = new RigaOrdineBean();
+                riga.setIdOrdine(idOrdine);
+                riga.setIdProdotto(rs.getInt("FK_Prodotto"));
+                riga.setQuantita(rs.getInt("Quantita"));
+                
+                // Recupero dati snapshot (congelati al momento acquisto)
+                riga.setPrezzoAcquisto(rs.getDouble("PrezzoAcquisto"));
+                riga.setNomeProdottoSnapshot(rs.getString("NomeProdottoSnapshot"));
+                riga.setIvaApplicata(rs.getInt("IvaApplicata"));
+                
+                righe.add(riga);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return righe;
     }
 }

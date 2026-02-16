@@ -10,23 +10,23 @@ import java.util.List;
 
 /**
  * DAO per la gestione dei dati dei prodotti.
- * Fornisce metodi per interagire con la tabella Prodotto
- * e le relative viste nel database.
+ * Fornisce metodi per interagire con la tabella Prodotto e le relative viste nel database.
+ * Implementa la logica di Soft Delete (campo 'Attivo') per preservare lo storico.
+ * 
  * @author Ugo Manzo
- * @version 1.0
+ * @version 1.1
  */
-
 public class ProductDAO {
 
-	/**
+    /**
      * Recupera una lista dei prodotti più recenti aggiunti al catalogo.
-     * Utilizza la VistaCatalogoProdotti per ottenere dati completi, incluso il prezzo finale.
+     * Filtra solo i prodotti attivi (Soft Delete).
      * @param limit il numero massimo di prodotti da restituire.
      * @return una List di ProductBean.
      */
     public List<ProductBean> getNewProducts(int limit) {
         List<ProductBean> products = new ArrayList<>();
-        String sql = "SELECT * FROM VistaCatalogoProdotti ORDER BY ID_Prodotto DESC LIMIT ?";
+        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE Attivo = 1 ORDER BY ID_Prodotto DESC LIMIT ?";
 
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -35,18 +35,7 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                ProductBean product = new ProductBean();
-                product.setIdProdotto(rs.getInt("ID_Prodotto"));
-                product.setNomeProdotto(rs.getString("NomeProdotto"));
-                product.setDescrizione(rs.getString("Descrizione"));
-                product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
-                product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
-                product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
-                product.setQuantitaDisponibile(rs.getInt("QuantitaDisponibile"));
-                product.setUrlImmagine(rs.getString("URL_Immagine"));
-                product.setIdCategoria(rs.getInt("ID_Categoria"));
-                product.setNomeCategoria(rs.getString("NomeCategoria"));
-                
+                ProductBean product = mapRowToBean(rs);
                 products.add(product);
             }
 
@@ -71,18 +60,7 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                ProductBean product = new ProductBean();
-                product.setIdProdotto(rs.getInt("ID_Prodotto"));
-                product.setNomeProdotto(rs.getString("NomeProdotto"));
-                product.setDescrizione(rs.getString("Descrizione"));
-                product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
-                product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
-                product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
-                product.setQuantitaDisponibile(rs.getInt("QuantitaDisponibile"));
-                product.setUrlImmagine(rs.getString("URL_Immagine"));
-                product.setIdCategoria(rs.getInt("ID_Categoria"));
-                product.setNomeCategoria(rs.getString("NomeCategoria"));
-                return product;
+                return mapRowToBean(rs);
             }
 
         } catch (SQLException e) {
@@ -98,7 +76,7 @@ public class ProductDAO {
      */
     public List<ProductBean> getProductsByCategory(int idCategoria) {
         List<ProductBean> products = new ArrayList<>();
-        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE ID_Categoria = ? ORDER BY NomeProdotto ASC";
+        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE ID_Categoria = ? AND Attivo = 1 ORDER BY NomeProdotto ASC";
 
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -107,19 +85,7 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                ProductBean product = new ProductBean();
-                product.setIdProdotto(rs.getInt("ID_Prodotto"));
-                product.setNomeProdotto(rs.getString("NomeProdotto"));
-                product.setDescrizione(rs.getString("Descrizione"));
-                product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
-                product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
-                product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
-                product.setQuantitaDisponibile(rs.getInt("QuantitaDisponibile"));
-                product.setUrlImmagine(rs.getString("URL_Immagine"));
-                product.setIdCategoria(rs.getInt("ID_Categoria"));
-                product.setNomeCategoria(rs.getString("NomeCategoria"));
-                
-                products.add(product);
+                products.add(mapRowToBean(rs));
             }
 
         } catch (SQLException e) {
@@ -130,14 +96,12 @@ public class ProductDAO {
 
     /**
      * Cerca prodotti il cui nome contiene una data stringa di ricerca.
-     * La ricerca è case-insensitive (non distingue tra maiuscole e minuscole).
-     * La query è effettuata tramite l'uso di PreparedStatement per evitare SQL injections.
      * @param query la stringa da cercare nel nome dei prodotti.
      * @return una List di ProductBean che corrispondono alla ricerca.
      */
     public List<ProductBean> searchProductsByName(String query) {
         List<ProductBean> products = new ArrayList<>();
-        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE LOWER(NomeProdotto) LIKE ?";
+        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE LOWER(NomeProdotto) LIKE ? AND Attivo = 1";
 
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -148,19 +112,7 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                ProductBean product = new ProductBean();
-                product.setIdProdotto(rs.getInt("ID_Prodotto"));
-                product.setNomeProdotto(rs.getString("NomeProdotto"));
-                product.setDescrizione(rs.getString("Descrizione"));
-                product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
-                product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
-                product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
-                product.setQuantitaDisponibile(rs.getInt("QuantitaDisponibile"));
-                product.setUrlImmagine(rs.getString("URL_Immagine"));
-                product.setIdCategoria(rs.getInt("ID_Categoria"));
-                product.setNomeCategoria(rs.getString("NomeCategoria"));
-                
-                products.add(product);
+                products.add(mapRowToBean(rs));
             }
 
         } catch (SQLException e) {
@@ -171,7 +123,7 @@ public class ProductDAO {
     
     /**
      * Salva un nuovo prodotto nel database.
-     * @param product il ProductBean contenente i dati del nuovo prodotto (l'ID sarà ignorato).
+     * @param product il ProductBean contenente i dati del nuovo prodotto.
      */
     public void saveProduct(ProductBean product) {
         String sql = "INSERT INTO Prodotto (Nome, Descrizione, Prezzo, ScontoPercentuale, QuantitaDisponibile, URL_Immagine, FK_Categoria) " +
@@ -223,13 +175,12 @@ public class ProductDAO {
     }
     
     /**
-     * Rimuove un prodotto dal database.
-     * L'operazione fallirà se il prodotto è presente in almeno un ordine,
-     * a causa del vincolo di integrità referenziale.
+     * Rimuove un prodotto dal database (Soft Delete).
+     * Imposta il flag 'Attivo' a 0 per mantenere l'integrità referenziale con gli ordini passati.
      * @param idProdotto l'ID del prodotto da eliminare.
      */
     public void deleteProduct(int idProdotto) {
-        String sql = "DELETE FROM Prodotto WHERE ID_Prodotto = ?";
+        String sql = "UPDATE Prodotto SET Attivo = 0 WHERE ID_Prodotto = ?";
 
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -248,8 +199,6 @@ public class ProductDAO {
      * @param conn la connessione transazionale.
      * @param idProdotto l'ID del prodotto.
      * @param quantitaDaSottrarre la quantità (positiva) da sottrarre.
-     * @throws SQLException se l'aggiornamento fallisce.
-     * @throws IllegalArgumentException se la quantità è negativa.
      */
     public void decreaseStock(Connection conn, int idProdotto, int quantitaDaSottrarre) throws SQLException {
         if (quantitaDaSottrarre < 0) {
@@ -266,10 +215,8 @@ public class ProductDAO {
     
     /**
      * Aumenta la quantità disponibile di un prodotto.
-     * Usato per le operazioni di rifornimento del magazzino.
      * @param idProdotto l'ID del prodotto.
      * @param quantitaDaAggiungere la quantità (positiva) da aggiungere.
-     * @throws IllegalArgumentException se la quantità è negativa.
      */
     public void increaseStock(int idProdotto, int quantitaDaAggiungere) {
         if (quantitaDaAggiungere < 0) {
@@ -289,12 +236,12 @@ public class ProductDAO {
     
     /**
      * Controlla se una data quantità di un prodotto è disponibile in magazzino.
-     * @param idProdotto l'ID del prodotto da controllare.
-     * @param quantitaRichiesta la quantità che si desidera acquistare.
-     * @return true se la quantità richiesta è disponibile, false altrimenti.
+     * Verifica anche che il prodotto sia Attivo.
+     * @param idProdotto l'ID del prodotto.
+     * @param quantitaRichiesta la quantità richiesta.
      */
     public boolean isAvailable(int idProdotto, int quantitaRichiesta) {
-        String sql = "SELECT QuantitaDisponibile FROM Prodotto WHERE ID_Prodotto = ?";
+        String sql = "SELECT QuantitaDisponibile FROM Prodotto WHERE ID_Prodotto = ? AND Attivo = 1";
 
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -314,19 +261,18 @@ public class ProductDAO {
     }
     
     /**
-     * Restituisce il numero totale di prodotti presenti nel catalogo.
+     * Restituisce il numero totale di prodotti attivi nel catalogo.
      * Utile per la paginazione.
-     * @return il conteggio totale dei prodotti.
      */
     public int countAll() {
-        String sql = "SELECT COUNT(*) FROM Prodotto";
+        String sql = "SELECT COUNT(*) FROM Prodotto WHERE Attivo = 1";
         
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
-                return rs.getInt(1); // Restituisce il COUNT
+                return rs.getInt(1);
             }
 
         } catch (SQLException e) {
@@ -336,58 +282,39 @@ public class ProductDAO {
     }
     
     /**
-     * Recupera una "pagina" di prodotti dal catalogo, ordinati per nome.
-     * @param offset il punto di partenza da cui recuperare i prodotti (es. per la pagina 3 con 10 prodotti per pagina, l'offset è 20).
-     * @param limit il numero di prodotti da recuperare (il numero di prodotti per pagina).
-     * @return una List di ProductBean per la pagina richiesta.
+     * Recupera una "pagina" di prodotti attivi dal catalogo.
+     * @param offset punto di partenza.
+     * @param limit numero di prodotti.
      */
     public List<ProductBean> getProductsPaginated(int offset, int limit) {
-    	List<ProductBean> products = new ArrayList<>();
-    	// Usiamo la vista e la clausola LIMIT di MySQL per la paginazione.
-    	String sql = "SELECT * FROM VistaCatalogoProdotti ORDER BY NomeProdotto ASC LIMIT ? OFFSET ?";
-    	
-    	try (Connection conn = DriverManagerConnectionPool.getConnection();
-	    	PreparedStatement stmt = conn.prepareStatement(sql)) {
-		    	stmt.setInt(1, limit);
-		    	stmt.setInt(2, offset);
-		    	ResultSet rs = stmt.executeQuery();
-		
-		    	while (rs.next()) {
-		    	     ProductBean product = new ProductBean();
-		             product.setIdProdotto(rs.getInt("ID_Prodotto"));
-		             product.setNomeProdotto(rs.getString("NomeProdotto"));
-		             product.setDescrizione(rs.getString("Descrizione"));
-		             product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
-		             product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
-		             product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
-		             product.setQuantitaDisponibile(rs.getInt("QuantitaDisponibile"));
-		             product.setUrlImmagine(rs.getString("URL_Immagine"));
-		             product.setIdCategoria(rs.getInt("ID_Categoria"));
-		             product.setNomeCategoria(rs.getString("NomeCategoria"));
-		                
-		    	     products.add(product);
-		    	}
-    	} catch (SQLException e) {
-	    	e.printStackTrace();
-    	}
-    	return products;
+        List<ProductBean> products = new ArrayList<>();
+        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE Attivo = 1 ORDER BY NomeProdotto ASC LIMIT ? OFFSET ?";
+        
+        try (Connection conn = DriverManagerConnectionPool.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, limit);
+                stmt.setInt(2, offset);
+                ResultSet rs = stmt.executeQuery();
+        
+                while (rs.next()) {
+                     products.add(mapRowToBean(rs));
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
     }
     
     /**
-     * Recupera una lista dei prodotti più venduti (popolari).
-     * La popolarità è calcolata in base al numero totale di unità vendute
-     * di ogni prodotto, sommando le quantità da tutte le righe d'ordine.
-     * @param limit il numero massimo di prodotti popolari da restituire.
-     * @return una List di ProductBean dei prodotti più venduti.
+     * Recupera i prodotti più venduti.
      */
     public List<ProductBean> getPopularProducts(int limit) {
         List<ProductBean> products = new ArrayList<>();
-        // Questa query è più complessa: unisce i prodotti con le righe d'ordine,
-        // raggruppa per prodotto, somma le quantità vendute e ordina per questa somma.
         String sql = "SELECT p.*, c.Nome AS NomeCategoria " +
                      "FROM Prodotto p " +
                      "JOIN RigaOrdine ro ON p.ID_Prodotto = ro.FK_Prodotto " +
                      "LEFT JOIN Categoria c ON p.FK_Categoria = c.ID_Categoria " +
+                     "WHERE p.Attivo = 1 " +
                      "GROUP BY p.ID_Prodotto " +
                      "ORDER BY SUM(ro.Quantita) DESC " +
                      "LIMIT ?";
@@ -430,14 +357,11 @@ public class ProductDAO {
     }
 
     /**
-     * Recupera una lista di prodotti attualmente in sconto.
-     * Utile per una sezione "Offerte Speciali" del sito.
-     * @param limit il numero massimo di prodotti scontati da restituire.
-     * @return una List di ProductBean.
+     * Recupera i prodotti attivi in sconto.
      */
     public List<ProductBean> getDiscountedProducts(int limit) {
         List<ProductBean> products = new ArrayList<>();
-        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE ScontoPercentuale > 0 ORDER BY ScontoPercentuale DESC LIMIT ?";
+        String sql = "SELECT * FROM VistaCatalogoProdotti WHERE ScontoPercentuale > 0 AND Attivo = 1 ORDER BY ScontoPercentuale DESC LIMIT ?";
 
         try (Connection conn = DriverManagerConnectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -446,20 +370,31 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                ProductBean product = new ProductBean();
-                product.setIdProdotto(rs.getInt("ID_Prodotto"));
-                product.setNomeProdotto(rs.getString("NomeProdotto"));
-                product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
-                product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
-                product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
-                product.setUrlImmagine(rs.getString("URL_Immagine"));
-                product.setNomeCategoria(rs.getString("NomeCategoria"));
-                products.add(product);
+                products.add(mapRowToBean(rs));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return products;
+    }
+
+    /**
+     * Metodo di utility privato per mappare una riga del ResultSet (dalla Vista) a un ProductBean.
+     * Evita duplicazione di codice.
+     */
+    private ProductBean mapRowToBean(ResultSet rs) throws SQLException {
+        ProductBean product = new ProductBean();
+        product.setIdProdotto(rs.getInt("ID_Prodotto"));
+        product.setNomeProdotto(rs.getString("NomeProdotto"));
+        product.setDescrizione(rs.getString("Descrizione"));
+        product.setPrezzoDiListino(rs.getDouble("PrezzoDiListino"));
+        product.setScontoPercentuale(rs.getInt("ScontoPercentuale"));
+        product.setPrezzoFinale(rs.getDouble("PrezzoFinale"));
+        product.setQuantitaDisponibile(rs.getInt("QuantitaDisponibile"));
+        product.setUrlImmagine(rs.getString("URL_Immagine"));
+        product.setIdCategoria(rs.getInt("ID_Categoria"));
+        product.setNomeCategoria(rs.getString("NomeCategoria"));
+        return product;
     }
 }

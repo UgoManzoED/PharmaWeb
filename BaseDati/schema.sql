@@ -61,6 +61,7 @@ CREATE TABLE Prodotto (
     ScontoPercentuale INT NOT NULL DEFAULT 0,
     QuantitaDisponibile INT NOT NULL DEFAULT 0,
     URL_Immagine VARCHAR(255),
+    Attivo BOOLEAN NOT NULL DEFAULT TRUE,
     FK_Categoria INT,
     FOREIGN KEY (FK_Categoria) REFERENCES Categoria(ID_Categoria) ON DELETE SET NULL
 );
@@ -85,9 +86,11 @@ CREATE TABLE RigaOrdine (
     FK_Prodotto INT,
     Quantita INT NOT NULL,
     PrezzoAcquisto DECIMAL(10, 2) NOT NULL, -- Storicizza il prezzo al momento dell'acquisto
+    NomeProdottoSnapshot VARCHAR(255) NOT NULL, -- Congela il nome
+    IvaApplicata INT NOT NULL DEFAULT 22,       -- Congela l'IVA
     PRIMARY KEY (FK_Ordine, FK_Prodotto),
     FOREIGN KEY (FK_Ordine) REFERENCES Ordine(ID_Ordine) ON DELETE CASCADE, -- Se si cancella un ordine, si cancellano i dettagli
-    FOREIGN KEY (FK_Prodotto) REFERENCES Prodotto(ID_Prodotto) ON DELETE RESTRICT -- Non si può cancellare un prodotto se è in un ordine
+    FOREIGN KEY (FK_Prodotto) REFERENCES Prodotto(ID_Prodotto)
 );
 
 -- Tabella Recensione: Memorizza le recensioni dei prodotti
@@ -164,14 +167,14 @@ SELECT
     o.ID_Ordine,
     o.DataOrdine,
     u.Email AS EmailCliente,
-    p.Nome AS NomeProdotto,
+    ro.NomeProdottoSnapshot AS NomeProdotto,
     ro.Quantita,
     ro.PrezzoAcquisto,
-    (ro.Quantita * ro.PrezzoAcquisto) AS SubtotaleRiga
+    (ro.Quantita * ro.PrezzoAcquisto) AS SubtotaleRiga,
+    ro.IvaApplicata
 FROM Ordine o
 JOIN Utente u ON o.FK_Utente = u.ID_Utente
-JOIN RigaOrdine ro ON o.ID_Ordine = ro.FK_Ordine
-JOIN Prodotto p ON ro.FK_Prodotto = p.ID_Prodotto;
+JOIN RigaOrdine ro ON o.ID_Ordine = ro.FK_Ordine;
 
 -- Vista Catalogo con nome e prezzo finale del prodotto
 CREATE VIEW VistaCatalogoProdotti AS
@@ -189,6 +192,7 @@ SELECT
     END AS PrezzoFinale,
     p.QuantitaDisponibile,
     p.URL_Immagine,
+    p.Attivo,
     c.ID_Categoria,
     c.Nome AS NomeCategoria
 FROM
