@@ -144,6 +144,9 @@ public class CheckoutServlet extends HttpServlet {
             utente.setPuntiFedelta(nuovoSaldoPunti);
             session.setAttribute("utente", utente);
             session.removeAttribute("cart");
+
+            CartDAO cartDAO = new CartDAO();
+            cartDAO.clearCart(utente.getIdUtente());
             
             response.sendRedirect(request.getContextPath() + "/ordine-confermato?id=" + ordine.getIdOrdine());
 
