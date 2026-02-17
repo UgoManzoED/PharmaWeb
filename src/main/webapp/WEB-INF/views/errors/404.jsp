@@ -1,11 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-<jsp:include page="/WEB-INF/jspf/header.jsp">
-    <jsp:param name="pageTitle" value="Pagina non trovata - PharmaWeb" />
-    <jsp:param name="pageCss" value="error.css" />
-</jsp:include>
-
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagina non trovata - PharmaWeb</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/error.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
 <main class="error-page">
     <div class="error-container">
         <div class="error-content">
@@ -39,5 +43,5 @@
         </div>
     </div>
 </main>
-
-<%@ include file="/WEB-INF/jspf/footer.jsp" %>
+</body>
+</html>

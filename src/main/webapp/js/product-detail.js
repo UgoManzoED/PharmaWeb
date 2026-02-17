@@ -37,21 +37,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 metaToken.setAttribute('content', data.csrfToken);
             }
 
-            if (!response.ok) {
-                throw new Error(data.error || `Errore: ${response.status}`);
-            }
+            
 
             if (data.success) {
-                // Aggiornamento contatori header
-                if (url === 'cart') {
-                    document.getElementById('cart-count').textContent = data.cartItemCount;
-                } else if (url === 'wishlist') {
-                    document.getElementById('wishlist-count').textContent = data.wishlistItemCount;
-                }
-                showToast(data.addedProductName ? `'${data.addedProductName}' aggiunto!` : 'Operazione completata!');
-            } else {
-                throw new Error(data.error || "Operazione fallita");
+            // Aggiornamento contatori header
+            if (url === 'cart') {
+                document.getElementById('cart-count').textContent = data.cartItemCount;
+            } else if (url === 'wishlist') {
+                document.getElementById('wishlist-count').textContent = data.wishlistItemCount;
             }
+            showToast(data.addedProductName ? `'${data.addedProductName}' aggiunto!` : 'Operazione completata!');
+        } else {
+            // Mostra l'errore dal backend (es. "Quantità non disponibile in magazzino")
+            showToast(data.error || 'Operazione non riuscita', true);
+        }
+
+        if (!response.ok) {
+                throw new Error(data.error || `Errore: ${response.status}`);
+            }
+            
         } catch (error) {
             console.error('Errore AJAX:', error);
             showToast(error.message, true);

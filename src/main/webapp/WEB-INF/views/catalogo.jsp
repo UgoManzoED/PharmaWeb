@@ -161,12 +161,12 @@
                                                 </button>
                                             </c:when>
                                             <c:otherwise>
-                                                <button class="add-to-cart-button" disabled>
+                                                <button type="button" class="add-to-cart-button" disabled>
                                                     Non disponibile
                                                 </button>
                                             </c:otherwise>
                                         </c:choose>
-                                        <button class="add-to-wishlist-button" data-product-id="${prodotto.idProdotto}">
+                                        <button type="button" class="add-to-wishlist-button" data-product-id="${prodotto.idProdotto}">
                                             ❤️
                                         </button>
                                     </div>

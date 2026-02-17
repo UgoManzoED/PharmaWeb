@@ -8,7 +8,7 @@
 </jsp:include>
 
 <main class="success-page">
-    <div class="success-container" style="max-width: 800px; margin: 40px auto; padding: 20px; text-align: center;">
+    <div class="success-container" style="max-width: 900px; margin: 40px auto; padding: 20px; text-align: center;">
         
         <!-- Icona di successo -->
         <div class="success-icon" style="font-size: 64px; color: #28a745; margin-bottom: 20px;">
@@ -49,6 +49,55 @@
                     <h3>Metodo di pagamento:</h3>
                     <p style="color: #555;"><c:out value="${ordine.metodoPagamentoUtilizzato}"/></p>
                 </div>
+            </div>
+
+            <!-- SEZIONE PRODOTTI ORDINATI -->
+            <hr style="border: 0; border-top: 1px solid #dee2e6; margin: 20px 0;">
+            <div class="order-products">
+                <h3 style="margin-top: 0; margin-bottom: 15px; color: #003366;">Prodotti ordinati</h3>
+                <c:if test="${not empty ordine.righe}">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="background: #f1f3f5; text-align: left;">
+                                <th style="padding: 12px; border-bottom: 2px solid #dee2e6;">Prodotto</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #dee2e6; text-align: center;">Quantità</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #dee2e6; text-align: right;">Prezzo</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #dee2e6; text-align: right;">Subtotale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="riga" items="${ordine.righe}">
+                                <tr style="border-bottom: 1px solid #e9ecef;">
+                                    <td style="padding: 12px;">
+                                        <strong><c:out value="${riga.nomeProdottoSnapshot}"/></strong>
+                                    </td>
+                                    <td style="padding: 12px; text-align: center;">
+                                        x ${riga.quantita}
+                                    </td>
+                                    <td style="padding: 12px; text-align: right;">
+                                        <fmt:formatNumber value="${riga.prezzoAcquisto}" type="currency" currencySymbol="€"/>
+                                    </td>
+                                    <td style="padding: 12px; text-align: right; font-weight: bold;">
+                                        <fmt:formatNumber value="${riga.prezzoAcquisto * riga.quantita}" type="currency" currencySymbol="€"/>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #f8f9fa;">
+                                <td colspan="3" style="padding: 12px; text-align: right; font-weight: bold; border-top: 2px solid #dee2e6;">
+                                    TOTALE:
+                                </td>
+                                <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 18px; color: #28a745; border-top: 2px solid #dee2e6;">
+                                    <fmt:formatNumber value="${ordine.importoTotale}" type="currency" currencySymbol="€"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </c:if>
+                <c:if test="${empty ordine.righe}">
+                    <p style="color: #999; font-style: italic; margin-top: 15px;">Nessun prodotto trovato per questo ordine.</p>
+                </c:if>
             </div>
 
             <c:if test="${ordine.puntiGuadagnati > 0 || ordine.puntiUtilizzati > 0}">

@@ -42,24 +42,26 @@ public class CsrfFilter implements Filter {
         String requestToken = httpRequest.getParameter("csrfToken");
 
         if (sessionToken == null || requestToken == null || !sessionToken.equals(requestToken)) {
-            // I token non corrispondono, richiesta CSRF non valida
-            
-        	// Controllo Richiesta AJAX
-        	if("XMLHttpRequest".equals(httpRequest.getHeader("X-Requested-With"))
-        			|| httpRequest.getHeader("Accept") != null
-        			&& httpRequest.getHeader("Accept").contains("application/json")) {
-        		// Rispondo con JSON
-        		httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        		httpResponse.setContentType("application/json; charset=UTF-8");
-        		httpResponse.getWriter().write("{\"success\":false,\"error\":\"Errore di sicurezza. Ricarica la pagina.\"}");
-        		httpResponse.getWriter().flush();
-        	} else {
-        		httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Richiesta CSRF non valida.");
-        	}
+        
+            String nextToken = UUID.randomUUID().toString();
+            httpRequest.getSession().setAttribute("csrfToken", nextToken);
+
+            // Controllo Richiesta AJAX
+            if ("XMLHttpRequest".equals(httpRequest.getHeader("X-Requested-With")) || 
+                (httpRequest.getHeader("Accept") != null && httpRequest.getHeader("Accept").contains("application/json"))) {
+                
+                httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                httpResponse.setContentType("application/json; charset=UTF-8");
+                httpResponse.getWriter().write("{\"success\":false,\"error\":\"Sessione scaduta o sicurezza non valida. Riprova.\",\"csrfToken\":\"" + nextToken + "\"}");
+                httpResponse.getWriter().flush();
+            } else {
+                // Per i form normali, mandiamo alla 403. .
+                httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Richiesta CSRF non valida.");
+            }
         } else {
-            // I token corrispondono, la richiesta è legittima, genera un nuovo token per la prossima richiesta
-        	String newCsrfToken = UUID.randomUUID().toString();
-        	httpRequest.getSession().setAttribute("csrfToken", newCsrfToken);
+            // Ruotiamo il token per la prossima operazione
+            String nextToken = UUID.randomUUID().toString();
+            httpRequest.getSession().setAttribute("csrfToken", nextToken);
             chain.doFilter(request, response);
         }
     }
