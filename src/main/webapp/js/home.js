@@ -51,15 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 metaToken.setAttribute('content', data.csrfToken);
             }
 
-            if (!response.ok) {
-                 throw new Error(data.error || `HTTP error! status: ${response.status}`);
-            }
+            
 
             if (data.success) {
-                console.log('Prodotto aggiunto:', data.addedProductName);
-                successCallback(data);
-            } else {
-                showToast(`Errore: ${data.error}`, true);
+            console.log('Prodotto aggiunto:', data.addedProductName);
+            successCallback(data);
+        } else {
+            // Mostra il messaggio di errore dal backend
+            showToast(data.error || 'Operazione non riuscita', true);
+        }
+
+        if (!response.ok) {
+                 throw new Error(data.error || `HTTP error! status: ${response.status}`);
             }
 
         } catch (error) {
