@@ -8,6 +8,7 @@ import it.unisa.pharmaweb.model.bean.WishlistBean;
 import it.unisa.pharmaweb.model.dao.CartDAO;
 import it.unisa.pharmaweb.model.dao.UtenteDAO;
 import java.io.IOException;
+import java.util.UUID;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,11 +32,12 @@ public class LoginServlet extends HttpServlet {
         // CASO 1: Utente non trovato o password non corretta
         // BCrypt.checkpw gestisce entrambi i casi
         // L'utente viene recuperato, e poi si controlla se la password in chiaro corrisponde all'hash salvato
-        if (utente == null || !BCrypt.checkpw(passwordInChiaro, utente.getPassword())) {
-            request.setAttribute("error", "Credenziali non valide. Riprova.");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/login.jsp");
-            dispatcher.forward(request, response);
-            return; // Interrompe l'esecuzione
+         if (utente == null || !BCrypt.checkpw(passwordInChiaro, utente.getPassword())) {
+           
+            HttpSession session = request.getSession();
+            session.setAttribute("loginError", "Credenziali non valide. Riprova.");
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
         }
 
         // CASO 2: Login Riuscito
@@ -87,6 +89,14 @@ public class LoginServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Controlla se c'è un errore in sessione dal POST precedente
+        HttpSession session = request.getSession();
+        String error = (String) session.getAttribute("loginError");
+        if (error != null) {
+            request.setAttribute("error", error);
+            session.removeAttribute("loginError"); // Rimuovi dopo averlo mostrato
+        }
+        
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/login.jsp");
         dispatcher.forward(request, response);
     }
