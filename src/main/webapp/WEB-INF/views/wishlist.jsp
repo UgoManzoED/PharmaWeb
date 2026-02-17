@@ -76,7 +76,16 @@
                                             <c:out value="${prodotto.nomeProdotto}"/>
                                         </a>
                                     </h3>
-                                    <p class="product-description"><c:out value="${prodotto.descrizione}"/></p>
+                                    <p class="product-description">
+                                        <c:choose>
+                                            <c:when test="${prodotto.descrizione.length() > 60}">
+                                                <c:out value="${prodotto.descrizione.substring(0, 60)}"/>...
+                                            </c:when>
+                                            <c:otherwise>
+                                                <c:out value="${prodotto.descrizione}"/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </p>
                                     
                                     <%-- Visualizzazione Prezzo con gestione Sconto --%>
                                     <div class="product-price">
