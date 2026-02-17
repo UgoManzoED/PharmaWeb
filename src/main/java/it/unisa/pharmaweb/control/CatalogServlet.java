@@ -2,6 +2,7 @@ package it.unisa.pharmaweb.control;
 
 import it.unisa.pharmaweb.model.bean.ProductBean;
 import it.unisa.pharmaweb.model.dao.ProductDAO;
+import it.unisa.pharmaweb.model.dao.CategoriaDAO;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class CatalogServlet extends HttpServlet {
         String categoryIdStr = request.getParameter("cat");
         
         ProductDAO productDAO = new ProductDAO();
+        CategoriaDAO categoriaDAO = new CategoriaDAO();
         List<ProductBean> products = new ArrayList<>();
         String pageTitle = "Catalogo Prodotti";
 
@@ -55,6 +57,7 @@ public class CatalogServlet extends HttpServlet {
         // Impostiamo gli attributi per la View
         request.setAttribute("products", products);
         request.setAttribute("pageTitle", pageTitle);
+        request.setAttribute("categories", categoriaDAO.doRetrieveAll());
 
         // Forward alla pagina del catalogo
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/catalogo.jsp");
