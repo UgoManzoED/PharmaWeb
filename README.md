@@ -1,81 +1,103 @@
-# PharmaWeb 💊
+*[Read this in English](README.md) | [Leggi in Italiano](README.it.md)*
 
-**PharmaWeb** è una piattaforma di e-commerce completa per una farmacia online, sviluppata come progetto per il corso di **Tecnologie Software per il Web** (A.A. 2024/2025) presso l'Università degli Studi di Salerno.
+# PharmaWeb - Online Pharmacy E-Commerce Platform
 
-Il sistema permette agli utenti di acquistare farmaci da banco, integratori e prodotti per la cura personale, offrendo un'esperienza utente moderna e sicura.
+**University of Salerno** **Course:** Web Software Technologies - A.Y. 2024/2025  
+**Professor:** Simone ROMANO  
 
-## 👥 Membri del Gruppo
-*   **Ugo Manzo** (Matricola: 0512119071) - *Coordinatore / Backend & Database*
-*   **Davide Pio Lazzarini** (Matricola: 0512119112) - *Frontend & UI/UX*
+**Team:** 
+* Ugo Manzo (Matricola: 0512119071) - *Coordinator / Backend & Database* - [GitHub](https://github.com/UgoManzoED)
+* Davide Pio Lazzarini (Matricola: 0512119112) - *Frontend & UI/UX* - [GitHub](https://github.com/davidelazz)
 
----
+> A comprehensive e-commerce platform designed to facilitate the online sale of over-the-counter drugs, supplements, and personal care products, ensuring a modern and secure user experience.
 
-## 🚀 Funzionalità Principali
-
-### Area Cliente
-- **Catalogo Dinamico:** Esplorazione prodotti per categorie e ricerca testuale.
-- **Carrello & Wishlist:** Gestione asincrona (AJAX) dei prodotti con persistenza su database per utenti loggati.
-- **Checkout Evoluto:** Transazione sicura con storicizzazione dei prezzi e calcolo punti fedeltà (1 punto ogni 20€ spesi).
-- **Area Personale:** Dashboard per la gestione di indirizzi, metodi di pagamento e consultazione dello storico ordini.
-
-### Area Amministratore
-- **Gestione Catalogo (CRUD):** Inserimento, modifica e cancellazione di prodotti con supporto all'upload di immagini reali.
-- **Monitoraggio Ordini:** Visualizzazione globale delle vendite con filtri avanzati per data ed email cliente.
-- **Gestione Utenti:** Elenco completo degli iscritti e gestione dei ruoli.
+![Project Status](https://img.shields.io/badge/Status-Active-success)
+![Backend](https://img.shields.io/badge/Backend-Java%20EE-orange)
+![Database](https://img.shields.io/badge/Database-MySQL-blue)
+![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-yellow)
 
 ---
 
-## 🛠️ Stack Tecnologico
-
-### Backend
-- **Linguaggio:** Java 17 (LTS)
-- **Tecnologia:** Jakarta EE 10 (Servlet, JSP, JSPF, Tag Files)
-- **Server:** Apache Tomcat 10.1
-- **Build Tool:** Maven
-
-### Database
-- **DBMS:** MySQL 8.0
-- **Pattern:** DAO (Data Access Object) con gestione connessione tramite `DriverManager`
-- **Integrità:** Viste SQL per logica di calcolo e Indici per l'ottimizzazione delle performance.
-
-### Frontend
-- **Linguaggi:** HTML5, CSS3 (Custom Grid System & Responsive Design), JavaScript (Vanilla)
-- **Interattività:** AJAX / Fetch API per operazioni asincrone.
-- **Librerie:** JSTL 2.0, FontAwesome 6, Google Gson.
+## Table of Contents
+* [About the Project](#about-the-project)
+* [Architecture & Security](#architecture--security)
+* [Key Features](#key-features)
+* [Built With](#built-with)
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Test Credentials](#test-credentials)
+* [Documentation](#documentation)
 
 ---
 
-## 🔒 Sicurezza e Buone Pratiche
-- **Protezione CSRF:** Filtro centralizzato con rotazione automatica del token ad ogni richiesta POST.
-- **Password Hashing:** Utilizzo dell'algoritmo **BCrypt** (via jBcrypt) per la cifratura delle password.
-- **Prevenzione SQL Injection:** Uso sistematico di `PreparedStatement`.
-- **Architettura MVC:** Rigorosa separazione tra logica di business, accesso ai dati e presentazione.
-- **Sicurezza delle Viste:** Pagine JSP protette all'interno della directory `/WEB-INF/`.
+## About the Project
+**PharmaWeb** is a full-stack web application developed to digitalize the retail operations of a pharmacy. The system provides a seamless shopping experience for customers and a robust management dashboard for administrators, bridging the gap between inventory control and user engagement through features like dynamic cataloging, asynchronous cart management, and a loyalty point system.
+
+## Architecture & Security
+The project strictly adheres to the **Model-View-Controller (MVC)** architectural pattern, ensuring a clean separation of concerns between business logic, data access (via the DAO pattern), and presentation.
+
+* **Data Integrity & Performance:** Utilizes SQL Views for complex calculation logic and database indexes to optimize query performance.
+* **CSRF Protection:** Implements a centralized filter with automatic token rotation on every POST request.
+* **Authentication:** Password hashing using the **BCrypt** algorithm (via jBcrypt).
+* **Injection Prevention:** Systematic use of `PreparedStatement` to mitigate SQL Injection vulnerabilities.
+* **View Security:** JSP pages are protected and isolated within the `/WEB-INF/` directory to prevent direct URL access.
+
+## Key Features
+
+### Client Area
+**Dynamic Catalog:** Browse products by category and perform advanced text searches.\
+**Cart & Wishlist:** Asynchronous operations via AJAX/Fetch API with database persistence for authenticated users.\
+**Advanced Checkout:** Secure transaction processing with historical price tracking and automatic loyalty point calculation (1 point per €20 spent).\
+**Personal Dashboard:** Dedicated area for users to manage shipping addresses, payment methods, and view order history.
+
+### Administrator Area
+**Catalog Management (CRUD):** Add, edit, and delete products with support for real image uploads.\
+**Order Monitoring:** Global view of platform sales with advanced filtering by date and customer email.\
+**User Management:** Complete roster of registered users and role assignment capabilities.
+
+## Built With
+* **Backend:** [Java 17 LTS](https://www.oracle.com/java/), Jakarta EE 10 (Servlet, JSP, JSPF, Tag Files), [Apache Tomcat 10.1](https://tomcat.apache.org/), Maven.
+* **Database:** [MySQL 8.0](https://www.mysql.com/), JDBC (`DriverManager`).
+* **Frontend:** HTML5, CSS3 (Custom Grid System & Responsive Design), Vanilla JavaScript, AJAX/Fetch API.
+* **Libraries:** JSTL 2.0, FontAwesome 6, Google Gson.
 
 ---
 
-## ⚙️ Installazione e Configurazione
+## Getting Started
+Follow these instructions to set up the local development environment.
 
-1.  **Database:**
-    - Eseguire lo script `BaseDati/schema.sql` per creare la struttura.
-    - Eseguire `BaseDati/population.sql` per caricare i dati di test e le categorie.
-2.  **Configurazione Java:**
-    - Assicurarsi che la classe `DriverManagerConnectionPool.java` contenga le credenziali corrette per il proprio database locale.
-3.  **Deployment:**
-    - Importare il progetto in Eclipse come "Existing Maven Project".
-    - Associare il progetto a un'istanza di **Apache Tomcat 10.1**.
-    - Eseguire il server in modalità *Debug* e accedere a `http://localhost:8080/PharmaWeb/`.
+### Prerequisites
+* Java JDK 17
+* Apache Tomcat 10.1
+* MySQL Server 8.0
+* Eclipse IDE for Enterprise Java and Web Developers (Recommended)
+
+### Installation
+
+1. **Database Setup:**
+   * Execute the `BaseDati/schema.sql` script to generate the database structure.
+   * Execute the `BaseDati/population.sql` script to populate the database with test data and categories.
+
+2. **Backend Configuration:**
+   * Open `DriverManagerConnectionPool.java` and update the connection credentials to match your local MySQL instance.
+
+3. **Deployment:**
+   * Import the project into Eclipse as an "Existing Maven Project".
+   * Bind the project to your local Apache Tomcat 10.1 Server runtime environment.
+   * Start the server in *Debug* mode and access the application at: `http://localhost:8080/PharmaWeb/`
 
 ---
 
-## 🔑 Credenziali di Test
+## Test Credentials
+Use the following credentials to explore the different access levels of the platform:
 
-| Ruolo | Email | Password |
+| Role | Email | Password |
 | :--- | :--- | :--- |
-| **Amministratore** | `admin@pharmaweb.it` | `Password123!` |
-| **Cliente** | `mario.rossi@email.com` | `Password123!` |
+| **Administrator** | `admin@pharmaweb.it` | `Password123!` |
+| **Customer** | `mario.rossi@email.com` | `Password123!` |
 
 ---
 
-## 📄 Documentazione
-Il **Website Design Document (WDD)** completo è disponibile nella cartella `Deliverables/`, insieme al **Javadoc** generato per l'intero backend.
+## Documentation
+The complete **Website Design Document (WDD)** detailing the architectural choices and UI/UX design is available in the `Deliverables/` folder, alongside the generated **Javadoc** for the entire backend source code.
